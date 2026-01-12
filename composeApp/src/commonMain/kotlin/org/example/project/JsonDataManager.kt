@@ -5,7 +5,7 @@ import kotlinx.serialization.json.Json
 import kotlin.random.Random
 
 /**
- * Repository for managing yarns, projects, and their usages from a JSON file.
+ * Repository for managing articles, locations, and their assignments from a JSON file.
  */
 class JsonDataManager(private val fileHandler: FileHandler, private val filePath: String = "stash.json") {
 
@@ -81,165 +81,106 @@ class JsonDataManager(private val fileHandler: FileHandler, private val filePath
     }
 
     private fun validateData(appData: AppData) {
-        val yarnIds = appData.yarns.map { it.id }.toSet()
-        val projectIds = appData.projects.map { it.id }.toSet()
-        val patternIds = appData.patterns.map { it.id }.toSet()
+        val articleIds = appData.articles.map { it.id }.toSet()
+        val locationIds = appData.locations.map { it.id }.toSet()
 
-        for (yarn in appData.yarns) {
-            if (yarn.name.isBlank()) {
-                throw SerializationException("Yarn with id ${yarn.id} has a blank name.")
+        for (article in appData.articles) {
+            if (article.name.isBlank()) {
+                throw SerializationException("Article with id ${article.id} has a blank name.")
             }
         }
 
-        for (project in appData.projects) {
-            if (project.name.isBlank()) {
-                throw SerializationException("Project with id ${project.id} has a blank name.")
-            }
-            if (project.patternId != null && !patternIds.contains(project.patternId)) {
-                throw SerializationException("Project with id ${project.id} refers to a non-existent pattern with id ${project.patternId}.")
+        for (location in appData.locations) {
+            if (location.name.isBlank()) {
+                throw SerializationException("Location with id ${location.id} has a blank name.")
             }
         }
 
-        for (pattern in appData.patterns) {
-            if (pattern.name.isBlank()) {
-                throw SerializationException("Pattern with id ${pattern.id} has a blank name.")
+        for (assignment in appData.assignments) {
+            if (!articleIds.contains(assignment.articleId)) {
+                throw SerializationException("Assignment refers to a non-existent article with id ${assignment.articleId}.")
             }
-        }
-
-        for (usage in appData.usages) {
-            if (!yarnIds.contains(usage.yarnId)) {
-                throw SerializationException("Usage refers to a non-existent yarn with id ${usage.yarnId}.")
-            }
-            if (!projectIds.contains(usage.projectId)) {
-                throw SerializationException("Usage refers to a non-existent project with id ${usage.projectId}.")
+            if (!locationIds.contains(assignment.locationId)) {
+                throw SerializationException("Assignment refers to a non-existent location with id ${assignment.locationId}.")
             }
         }
     }
 
-    // ... (rest of the functions for yarn, project, and usage management)
-    fun getYarnById(id: Int): Yarn? = data.yarns.firstOrNull { it.id == id }
+    // Article management functions
+    fun getArticleById(id: Int): Article? = data.articles.firstOrNull { it.id == id }
 
-    fun createNewYarn(defaultName: String): Yarn {
-        val existingIds = data.yarns.map { it.id }.toSet()
+    fun createNewArticle(defaultName: String): Article {
+        val existingIds = data.articles.map { it.id }.toSet()
         var newId: Int
         do {
             newId = Random.nextInt(1_000_000, 10_000_000)
         } while (existingIds.contains(newId))
-        val yarnName = defaultName.replace("%1\$d", newId.toString())
-        return Yarn(
+        val articleName = defaultName.replace("%1\$d", newId.toString())
+        return Article(
             id = newId,
-            name = yarnName,
+            name = articleName,
             modified = getCurrentTimestamp()
         )
     }
 
-    suspend fun addOrUpdateYarn(yarn: Yarn) {
-        val index = data.yarns.indexOfFirst { it.id == yarn.id }
+    suspend fun addOrUpdateArticle(article: Article) {
+        val index = data.articles.indexOfFirst { it.id == article.id }
         if (index != -1) {
-            data.yarns[index] = yarn
+            data.articles[index] = article
         } else {
-            data.yarns.add(yarn)
+            data.articles.add(article)
         }
         save()
     }
 
-    suspend fun deleteYarn(id: Int) {
-        data.yarns.removeAll { it.id == id }
-        data.usages.removeAll { it.yarnId == id }
+    suspend fun deleteArticle(id: Int) {
+        data.articles.removeAll { it.id == id }
+        data.assignments.removeAll { it.articleId == id }
         save()
     }
 
-    fun getProjectById(id: Int): Project? = data.projects.firstOrNull { it.id == id }
+    // Location management functions
+    fun getLocationById(id: Int): Location? = data.locations.firstOrNull { it.id == id }
 
-    fun createNewProject(defaultName: String): Project {
-        val existingIds = data.projects.map { it.id }.toSet()
+    fun createNewLocation(defaultName: String): Location {
+        val existingIds = data.locations.map { it.id }.toSet()
         var newId: Int
         do {
             newId = Random.nextInt(1_000_000, 10_000_000)
         } while (existingIds.contains(newId))
-        val projectName = defaultName.replace("%1\$d", newId.toString())
-        return Project(
+        val locationName = defaultName.replace("%1\$d", newId.toString())
+        return Location(
             id = newId,
-            name = projectName,
-            modified = getCurrentTimestamp()
+            name = locationName
         )
     }
 
-    suspend fun addOrUpdateProject(project: Project) {
-        val index = data.projects.indexOfFirst { it.id == project.id }
+    suspend fun addOrUpdateLocation(location: Location) {
+        val index = data.locations.indexOfFirst { it.id == location.id }
         if (index != -1) {
-            data.projects[index] = project
+            data.locations[index] = location
         } else {
-            data.projects.add(project)
+            data.locations.add(location)
         }
         save()
     }
 
-    suspend fun deleteProject(id: Int) {
-        data.projects.removeAll { it.id == id }
-        data.usages.removeAll { it.projectId == id }
+    suspend fun deleteLocation(id: Int) {
+        data.locations.removeAll { it.id == id }
+        data.assignments.removeAll { it.locationId == id }
         save()
     }
 
-    fun getPatternById(id: Int): Pattern? = data.patterns.firstOrNull { it.id == id }
-
-    fun createNewPattern(): Pattern {
-        val existingIds = data.patterns.map { it.id }.toSet()
-        var newId: Int
-        do {
-            newId = Random.nextInt(1_000_000, 10_000_000)
-        } while (existingIds.contains(newId))
-        return Pattern(
-            id = newId,
-            name = "Pattern#$newId"
-        )
-    }
-
-    suspend fun addOrUpdatePattern(pattern: Pattern) {
-        val index = data.patterns.indexOfFirst { it.id == pattern.id }
-        if (index != -1) {
-            data.patterns[index] = pattern
-        } else {
-            data.patterns.add(pattern)
-        }
-        save()
-    }
-
-    suspend fun deletePattern(id: Int) {
-        data.patterns.removeAll { it.id == id }
-        data.projects.forEach { project ->
-            if (project.patternId == id) {
-                addOrUpdateProject(project.copy(patternId = null))
-            }
-        }
-        save()
-    }
-
-    suspend fun updatePatternPdfId(patternId: Int, pdfId: Int?) {
-        val index = data.patterns.indexOfFirst { it.id == patternId }
-        if (index != -1) {
-            data.patterns[index] = data.patterns[index].copy(pdfId = pdfId)
-        }
-        save()
-    }
-
-    fun availableForYarn(yarnId: Int, forProjectId: Int? = null): Int {
-        val yarn = getYarnById(yarnId) ?: return 0
-        val used = data.usages
-            .filter { it.yarnId == yarnId && it.projectId != forProjectId }
-            .sumOf { it.amount }
-        return yarn.amount - used
-    }
-
-    suspend fun setProjectAssignments(projectId: Int, assignments: Map<Int, Int>) {
-        // Remove existing assignments for this project
-        data.usages.removeAll { it.projectId == projectId }
+    // Assignment/Inventory management functions
+    suspend fun setLocationInventory(locationId: Int, assignments: Map<Int, Int>) {
+        // Remove existing assignments for this location
+        data.assignments.removeAll { it.locationId == locationId }
 
         // Add new assignments
-        for ((yarnId, amount) in assignments) {
+        for ((articleId, amount) in assignments) {
             if (amount > 0) {
-                val usage = Usage(yarnId = yarnId, projectId = projectId, amount = amount)
-                data.usages.add(usage)
+                val assignment = Assignment(articleId = articleId, locationId = locationId, amount = amount)
+                data.assignments.add(assignment)
             }
         }
         save()

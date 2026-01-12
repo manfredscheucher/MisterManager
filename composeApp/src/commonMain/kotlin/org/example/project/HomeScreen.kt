@@ -23,31 +23,30 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.unit.dp
 import openfridge.composeapp.generated.resources.Res
+import openfridge.composeapp.generated.resources.articles
 import openfridge.composeapp.generated.resources.help
+import openfridge.composeapp.generated.resources.home_button_articles
+import openfridge.composeapp.generated.resources.home_button_locations
 import openfridge.composeapp.generated.resources.home_button_patterns
-import openfridge.composeapp.generated.resources.home_button_projects
 import openfridge.composeapp.generated.resources.home_button_statistics
-import openfridge.composeapp.generated.resources.home_button_yarns
 import openfridge.composeapp.generated.resources.home_title
 import openfridge.composeapp.generated.resources.info
 import openfridge.composeapp.generated.resources.info_how_to_help
 import openfridge.composeapp.generated.resources.info_screen_title
+import openfridge.composeapp.generated.resources.locations
 import openfridge.composeapp.generated.resources.logo
 import openfridge.composeapp.generated.resources.patterns
-import openfridge.composeapp.generated.resources.projects
 import openfridge.composeapp.generated.resources.settings
 import openfridge.composeapp.generated.resources.settings_title
 import openfridge.composeapp.generated.resources.statistics
-import openfridge.composeapp.generated.resources.yarns
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
-    onOpenYarns: () -> Unit,
-    onOpenProjects: () -> Unit,
-    onOpenPatterns: () -> Unit,
+    onOpenArticles: () -> Unit,
+    onOpenLocations: () -> Unit,
     onOpenInfo: () -> Unit,
     onOpenStatistics: () -> Unit,
     onOpenSettings: () -> Unit,
@@ -72,12 +71,11 @@ fun HomeScreen(
     ) { padding ->
         Column(Modifier.padding(padding).padding(16.dp)) {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
-                HomeButton(onClick = onOpenYarns, icon = Res.drawable.yarns, text = stringResource(Res.string.home_button_yarns))
-                HomeButton(onClick = onOpenProjects, icon = Res.drawable.projects, text = stringResource(Res.string.home_button_projects))
+                HomeButton(onClick = onOpenArticles, icon = Res.drawable.articles, text = stringResource(Res.string.home_button_articles))
+                HomeButton(onClick = onOpenLocations, icon = Res.drawable.locations, text = stringResource(Res.string.home_button_locations))
             }
             Spacer(Modifier.height(16.dp))
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
-                HomeButton(onClick = onOpenPatterns, icon = Res.drawable.patterns, text = stringResource(Res.string.home_button_patterns))
                 HomeButton(onClick = onOpenStatistics, icon = Res.drawable.statistics, text = stringResource(Res.string.home_button_statistics))
             }
             Spacer(Modifier.height(16.dp))

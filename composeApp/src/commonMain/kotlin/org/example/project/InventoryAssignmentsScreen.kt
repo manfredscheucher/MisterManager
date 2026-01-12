@@ -18,11 +18,10 @@ import openfridge.composeapp.generated.resources.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProjectAssignmentsScreen(
-    projectName: String,
-    allYarns: List<Yarn>,
+fun LocationAssignmentsScreen(
+    locationName: String,
+    allArticles: List<Article>,
     initialAssignments: Map<Int, Int>,
-    getAvailableAmountForYarn: (yarnId: Int) -> Int, // This is the max that can be assigned from the yarn's total
     onSave: (updatedAssignments: Map<Int, Int>) -> Unit,
     onBack: () -> Unit
 ) {
@@ -33,9 +32,9 @@ fun ProjectAssignmentsScreen(
         derivedStateOf { currentAssignments != initialAssignments }
     }
 
-    val sortedYarns = remember(allYarns, currentAssignments) {
-        allYarns.sortedByDescending { yarn ->
-            (currentAssignments[yarn.id] ?: 0) > 0
+    val sortedArticles = remember(allArticles, currentAssignments) {
+        allArticles.sortedByDescending { article ->
+            (currentAssignments[article.id] ?: 0) > 0
         }
     }
 
@@ -54,6 +53,7 @@ fun ProjectAssignmentsScreen(
     val saveAction = {
         val finalAssignments = currentAssignments.filterValues { it > 0 } // Remove zero amounts
         onSave(finalAssignments)
+        onBack()
     }
 
     if (showUnsavedDialog) {
@@ -92,7 +92,7 @@ fun ProjectAssignmentsScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(Res.string.project_assignments_title, projectName)) },
+                title = { Text("$locationName - Assignments") },
                 navigationIcon = {
                     IconButton(onClick = backAction) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(Res.string.common_back))
@@ -101,14 +101,14 @@ fun ProjectAssignmentsScreen(
             )
         }
     ) { paddingValues ->
-        if (allYarns.isEmpty()) {
+        if (allArticles.isEmpty()) {
             Box(
                 modifier = Modifier
                     .padding(paddingValues)
                     .fillMaxSize()
                     .padding(16.dp)
             ) {
-                Text(stringResource(Res.string.yarn_list_empty)) // Re-using for now, consider a specific string
+                Text(stringResource(Res.string.article_list_empty)) // Re-using for now, consider a specific string
             }
         } else {
             Box(modifier = Modifier.padding(paddingValues).fillMaxSize()) {
@@ -121,31 +121,28 @@ fun ProjectAssignmentsScreen(
                     state = state,
                     contentPadding = PaddingValues(16.dp)
                 ) {
-                    items(sortedYarns, key = { it.id }) { yarn ->
-                        val assignedAmount = currentAssignments[yarn.id]
-                        val maxAmountThisProjectCanTake = getAvailableAmountForYarn(yarn.id)
+                    items(sortedArticles, key = { it.id }) { article ->
+                        val assignedAmount = currentAssignments[article.id]
 
                         Column(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
                             Text(
-                                "${yarn.name} (${yarn.color ?: "?"}) - Gesamt im Stash: ${yarn.amount}g",
+                                article.name,
                                 style = MaterialTheme.typography.titleMedium
                             )
-                            Text(stringResource(Res.string.usage_available, maxAmountThisProjectCanTake) + " für dieses Projekt maximal verfügbar")
                             Spacer(Modifier.height(4.dp))
                             OutlinedTextField(
                                 value = assignedAmount?.toString() ?: "",
                                 onValueChange = { textValue ->
                                     val numericValue = textValue.toIntOrNull()
-                                    val clampedValue = numericValue?.coerceIn(0, maxAmountThisProjectCanTake)
                                     currentAssignments = currentAssignments.toMutableMap().apply {
-                                        if (clampedValue != null) {
-                                            this[yarn.id] = clampedValue
-                                        } else {
-                                            remove(yarn.id)
+                                        if (numericValue != null && numericValue >= 0) {
+                                            this[article.id] = numericValue
+                                        } else if (textValue.isEmpty()) {
+                                            remove(article.id)
                                         }
                                     }
                                 },
-                                label = { Text(stringResource(Res.string.usage_amount_label)) },
+                                label = { Text(stringResource(Res.string.assignment_amount_label)) },
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                                 singleLine = true,
                                 modifier = Modifier.fillMaxWidth()

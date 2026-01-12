@@ -55,11 +55,9 @@ import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProjectListScreen(
-    projects: List<Project>,
+fun LocationListScreen(
+    locations: List<Location>,
     imageManager: ImageManager,
-    yarns: List<Yarn>,
-    usages: List<Usage>,
     settings: Settings,
     onAddClick: () -> Unit,
     onOpen: (Int) -> Unit,
@@ -70,25 +68,16 @@ fun ProjectListScreen(
         onBack()
     }
 
-    var activeStatuses by remember {
-        mutableStateOf(
-            ProjectStatus.entries.filter {
-                settings.projectToggles[it.name] ?: true
-            }.toSet()
-        )
-    }
     var filter by remember { mutableStateOf("") }
 
-    val filteredProjects = projects.filter {
-        val statusOk = it.status in activeStatuses
-        val filterOk = if (filter.isNotBlank()) {
+    val filteredLocations = locations.filter {
+        if (filter.isNotBlank()) {
             Json.encodeToString(it).contains(filter, ignoreCase = true)
         } else {
             true
         }
-        statusOk && filterOk
     }
-    val sortedProjects = filteredProjects.sortedByDescending { it.modified }
+    val sortedLocations = filteredLocations.sortedBy { it.name }
 
     Scaffold(
         topBar = {
@@ -96,12 +85,12 @@ fun ProjectListScreen(
                 title = {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Image(
-                            painter = painterResource(Res.drawable.projects),
+                            painter = painterResource(Res.drawable.locations),
                             contentDescription = null,
                             modifier = Modifier.size(32.dp)
                         )
                         Spacer(Modifier.width(8.dp))
-                        Text(stringResource(Res.string.project_list_title))
+                        Text(stringResource(Res.string.location_list_title))
                     }
                 },
                 navigationIcon = {
@@ -126,58 +115,22 @@ fun ProjectListScreen(
         floatingActionButtonPosition = FabPosition.Center
     ) { padding ->
         Column(Modifier.padding(padding)) {
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                for (status in ProjectStatus.entries) {
-                    val statusText = when (status) {
-                        ProjectStatus.PLANNING -> stringResource(Res.string.project_status_planning)
-                        ProjectStatus.IN_PROGRESS -> stringResource(Res.string.project_status_in_progress)
-                        ProjectStatus.FINISHED -> stringResource(Res.string.project_status_finished)
-                    }
-                    val count = projects.count { it.status == status }
-                    val selected = status in activeStatuses
-                    FilterChip(
-                        selected = selected,
-                        onClick = {
-                            val newActiveStatuses = if (selected) {
-                                activeStatuses - status
-                            } else {
-                                activeStatuses + status
-                            }
-                            activeStatuses = newActiveStatuses
-
-                            val newProjectToggles = ProjectStatus.entries.associate {
-                                it.name to (it in newActiveStatuses)
-                            }
-                            onSettingsChange(settings.copy(projectToggles = newProjectToggles))
-                        },
-                        label = { Text("$statusText ($count)") },
-                        colors = FilterChipDefaults.filterChipColors(
-                            selectedContainerColor = MaterialTheme.colorScheme.primary,
-                            selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
-                        ),
-                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary)
-                    )
-                }
-            }
             OutlinedTextField(
                 value = filter,
                 onValueChange = { filter = it },
-                label = { Text(stringResource(Res.string.project_list_filter)) },
+                label = { Text(stringResource(Res.string.location_list_filter)) },
                 leadingIcon = {
                     Icon(
                         Icons.Filled.Search,
-                        contentDescription = stringResource(Res.string.project_list_filter)
+                        contentDescription = stringResource(Res.string.location_list_filter)
                     )
                 },
                 shape = RoundedCornerShape(12.dp),
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
             )
-            if (sortedProjects.isEmpty()) {
+            if (sortedLocations.isEmpty()) {
                 Box(Modifier.fillMaxSize().padding(16.dp)) {
-                    Text(stringResource(Res.string.project_list_empty))
+                    Text(stringResource(Res.string.location_list_empty))
                 }
             } else {
                 Box(modifier = Modifier.fillMaxSize()) {
@@ -188,7 +141,8 @@ fun ProjectListScreen(
                         state = state,
                         contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 96.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {                        items(sortedProjects) { p ->
+                    ) {
+                        items(sortedLocations) { p ->
                             Card(
                                 modifier = Modifier.fillMaxWidth(),
                                 onClick = { onOpen(p.id) },
@@ -199,7 +153,7 @@ fun ProjectListScreen(
                                     LaunchedEffect(p.id, p.imageIds) {
                                         val imageId = p.imageIds.firstOrNull()
                                         imageBytes = if (imageId != null) {
-                                            imageManager.getProjectImageThumbnail(p.id, imageId)
+                                            imageManager.getLocationImageThumbnail(p.id, imageId)
                                         } else {
                                             null
                                         }
@@ -209,67 +163,20 @@ fun ProjectListScreen(
                                     if (bitmap != null) {
                                         Image(
                                             bitmap = bitmap,
-                                            contentDescription = "Project image for ${p.name}",
+                                            contentDescription = "Location image for ${p.name}",
                                             modifier = Modifier.size(64.dp),
                                             contentScale = ContentScale.Crop
                                         )
                                     } else {
                                         Image(
-                                            painter = painterResource(Res.drawable.projects),
-                                            contentDescription = "Project icon",
+                                            painter = painterResource(Res.drawable.locations),
+                                            contentDescription = "Location icon",
                                             modifier = Modifier.size(64.dp).alpha(0.5f),
                                             contentScale = ContentScale.Crop
                                         )
                                     }
                                     Spacer(modifier = Modifier.width(16.dp))
-                                    Column {
-                                        Text(p.name, fontWeight = FontWeight.Bold)
-                                        val statusText = when (p.status) {
-                                            ProjectStatus.PLANNING -> stringResource(Res.string.project_status_planning)
-                                            ProjectStatus.IN_PROGRESS -> stringResource(Res.string.project_status_in_progress)
-                                            ProjectStatus.FINISHED -> stringResource(Res.string.project_status_finished)
-                                        }
-                                        Text(statusText)
-
-                                        Spacer(Modifier.height(8.dp))
-
-                                        val yarnsForProject = remember(p.id, usages, yarns) {
-                                            usages.filter { it.projectId == p.id }
-                                                .mapNotNull { usage -> yarns.find { it.id == usage.yarnId } }
-                                        }
-
-                                        if (yarnsForProject.isNotEmpty()) {
-                                            Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                                                for (yarn in yarnsForProject.take(5)) {
-                                                    var yarnImageBytes by remember { mutableStateOf<ByteArray?>(null) }
-                                                    LaunchedEffect(yarn.id, yarn.imageIds) {
-                                                        val imageId = yarn.imageIds.firstOrNull()
-                                                        yarnImageBytes = if (imageId != null) {
-                                                            imageManager.getYarnImageThumbnail(yarn.id, imageId)
-                                                        } else {
-                                                            null
-                                                        }
-                                                    }
-                                                    val yarnBitmap = remember(yarnImageBytes) { yarnImageBytes?.toImageBitmap() }
-
-                                                    if (yarnBitmap != null) {
-                                                        Image(
-                                                            bitmap = yarnBitmap,
-                                                            contentDescription = "Yarn image for ${yarn.name}",
-                                                            modifier = Modifier.size(32.dp),
-                                                            contentScale = ContentScale.Crop
-                                                        )
-                                                    } else {
-                                                        Image(
-                                                            painter = painterResource(Res.drawable.yarns),
-                                                            contentDescription = "Yarn icon",
-                                                            modifier = Modifier.size(32.dp).alpha(0.5f)
-                                                        )
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
+                                    Text(p.name, fontWeight = FontWeight.Bold)
                                 }
                             }
                         }

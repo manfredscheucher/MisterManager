@@ -64,25 +64,24 @@ import org.jetbrains.compose.resources.stringResource
 @Composable
 fun SettingsScreen(
     currentLocale: String,
-    currentLengthUnit: LengthUnit,
     currentLogLevel: LogLevel,
     backupOldFolderOnImport: Boolean,
+    defaultExpirationDays: Int,
     fileHandler: FileHandler,
     onBack: () -> Unit,
     onExportZip: () -> Unit,
     onImport: (String) -> Unit,
     onImportZip: (Any) -> Unit,
     onLocaleChange: (String) -> Unit,
-    onLengthUnitChange: (LengthUnit) -> Unit,
     onLogLevelChange: (LogLevel) -> Unit,
-    onBackupOldFolderOnImportChange: (Boolean) -> Unit
+    onBackupOldFolderOnImportChange: (Boolean) -> Unit,
+    onDefaultExpirationDaysChange: (Int) -> Unit
 ) {
     var showJsonFilePicker by remember { mutableStateOf(false) }
     var showZipFilePicker by remember { mutableStateOf(false) }
     var showImportJsonConfirmDialog by remember { mutableStateOf(false) }
     var showImportZipConfirmDialog by remember { mutableStateOf(false) }
     var languageDropdownExpanded by remember { mutableStateOf(false) }
-    var lengthUnitDropdownExpanded by remember { mutableStateOf(false) }
     var logLevelDropdownExpanded by remember { mutableStateOf(false) }
 
     var filesDirSize by remember { mutableStateOf(0L) }
@@ -166,42 +165,6 @@ fun SettingsScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                ExposedDropdownMenuBox(
-                    expanded = lengthUnitDropdownExpanded,
-                    onExpandedChange = { lengthUnitDropdownExpanded = it }
-                ) {
-                    OutlinedTextField(
-                        value = if (currentLengthUnit == LengthUnit.METER) stringResource(Res.string.length_unit_meters) else stringResource(Res.string.length_unit_yards),
-                        onValueChange = {},
-                        label = { Text(stringResource(Res.string.length_unit_label)) },
-                        readOnly = true,
-                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = lengthUnitDropdownExpanded) },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .menuAnchor()
-                    )
-                    ExposedDropdownMenu(
-                        expanded = lengthUnitDropdownExpanded,
-                        onDismissRequest = { lengthUnitDropdownExpanded = false }
-                    ) {
-                        DropdownMenuItem(
-                            text = { Text(stringResource(Res.string.length_unit_meters)) },
-                            onClick = {
-                                onLengthUnitChange(LengthUnit.METER)
-                                lengthUnitDropdownExpanded = false
-                            }
-                        )
-                        DropdownMenuItem(
-                            text = { Text(stringResource(Res.string.length_unit_yards)) },
-                            onClick = {
-                                onLengthUnitChange(LengthUnit.YARD)
-                                lengthUnitDropdownExpanded = false
-                            }
-                        )
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
 
                 ExposedDropdownMenuBox(
                     expanded = logLevelDropdownExpanded,
@@ -266,6 +229,18 @@ fun SettingsScreen(
                     Checkbox(checked = backupOldFolderOnImport, onCheckedChange = onBackupOldFolderOnImportChange)
                     Text(stringResource(Res.string.backup_old_folder_on_import))
                 }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                OutlinedTextField(
+                    value = defaultExpirationDays.toString(),
+                    onValueChange = { newValue ->
+                        newValue.toIntOrNull()?.let { onDefaultExpirationDaysChange(it) }
+                    },
+                    label = { Text("Default Expiration (days)") },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true
+                )
 
                 if (showImportJsonConfirmDialog) {
                     AlertDialog(

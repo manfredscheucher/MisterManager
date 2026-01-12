@@ -25,17 +25,15 @@ import kotlin.NoSuchElementException // Ensure this import is present
 
 sealed class Screen {
     data object Home : Screen()
-    data object YarnList : Screen()
-    data class YarnForm(val yarnId: Int) : Screen()
-    data object ProjectList : Screen()
-    data class ProjectForm(val projectId: Int) : Screen()
-    data class ProjectAssignments(val projectId: Int, val projectName: String) : Screen()
+    data object ArticleList : Screen()
+    data class ArticleForm(val articleId: Int) : Screen()
+    data object LocationList : Screen()
+    data class LocationForm(val locationId: Int) : Screen()
+    data class InventoryAssignments(val locationId: Int, val locationName: String) : Screen()
     data object Info : Screen()
     data object HowToHelp : Screen()
     data object Statistics : Screen()
     data object Settings : Screen()
-    data object PatternList : Screen()
-    data class PatternForm(val patternId: Int) : Screen()
 }
 
 @Composable
@@ -43,16 +41,14 @@ fun App(jsonDataManager: JsonDataManager, imageManager: ImageManager, fileDownlo
     var navStack by remember { mutableStateOf(listOf<Screen>(Screen.Home)) }
     val screen = navStack.last()
     var settings by remember { mutableStateOf(Settings()) }
-    var yarns by remember { mutableStateOf(emptyList<Yarn>()) }
-    var projects by remember { mutableStateOf(emptyList<Project>()) }
-    var usages by remember { mutableStateOf(emptyList<Usage>()) }
-    var patterns by remember { mutableStateOf(emptyList<Pattern>()) }
+    var articles by remember { mutableStateOf(emptyList<Article>()) }
+    var locations by remember { mutableStateOf(emptyList<Location>()) }
+    var assignments by remember { mutableStateOf(emptyList<Assignment>()) }
     var showNotImplementedDialog by remember { mutableStateOf(false) }
     var errorDialogMessage by remember { mutableStateOf<String?>(null) }
 
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
-    val pdfManager = createPdfManager(fileHandler)
 
     fun navigateTo(newScreen: Screen) {
         navStack = navStack + newScreen
@@ -67,10 +63,9 @@ fun App(jsonDataManager: JsonDataManager, imageManager: ImageManager, fileDownlo
     suspend fun reloadAllData() {
         try {
             val data = withContext(Dispatchers.Default) { jsonDataManager.load() }
-            yarns = data.yarns
-            projects = data.projects
-            usages = data.usages
-            patterns = data.patterns
+            articles = data.articles
+            locations = data.locations
+            assignments = data.assignments
         } catch (e: Exception) {
             val errorMessage = "Failed to load data: ${e.message}. The data file might be corrupt."
             errorDialogMessage = errorMessage
@@ -94,17 +89,15 @@ fun App(jsonDataManager: JsonDataManager, imageManager: ImageManager, fileDownlo
     LaunchedEffect(screen) {
         val screenName = when (val s = screen) {
             is Screen.Home -> "Home"
-            is Screen.YarnList -> "YarnList"
-            is Screen.YarnForm -> "YarnForm(yarnId=${s.yarnId})"
-            is Screen.ProjectList -> "ProjectList"
-            is Screen.ProjectForm -> "ProjectForm(projectId=${s.projectId})"
-            is Screen.ProjectAssignments -> "ProjectAssignments(projectId=${s.projectId}, projectName='${s.projectName}')"
+            is Screen.ArticleList -> "ArticleList"
+            is Screen.ArticleForm -> "ArticleForm(articleId=${s.articleId})"
+            is Screen.LocationList -> "LocationList"
+            is Screen.LocationForm -> "LocationForm(locationId=${s.locationId})"
+            is Screen.InventoryAssignments -> "InventoryAssignments(locationId=${s.locationId}, locationName='${s.locationName}')"
             is Screen.Info -> "Info"
             is Screen.HowToHelp -> "HowToHelp"
             is Screen.Statistics -> "Statistics"
             is Screen.Settings -> "Settings"
-            is Screen.PatternList -> "PatternList"
-            is Screen.PatternForm -> "PatternForm(patternId=${s.patternId})"
         }
         Logger.log(LogLevel.INFO, "Navigating to screen: $screenName")
         Logger.logImportantFiles(LogLevel.TRACE)
@@ -143,7 +136,7 @@ fun App(jsonDataManager: JsonDataManager, imageManager: ImageManager, fileDownlo
             snackbarHost = { SnackbarHost(snackbarHostState) },
             contentWindowInsets = ScaffoldDefaults.contentWindowInsets
         ) { innerPadding ->
-            key(settings.language, settings.lengthUnit, settings.logLevel, settings.backupOldFolderOnImport) {
+            key(settings.language, settings.logLevel, settings.backupOldFolderOnImport) {
                 Box(
                     modifier = Modifier
                         .padding(innerPadding)
@@ -151,31 +144,31 @@ fun App(jsonDataManager: JsonDataManager, imageManager: ImageManager, fileDownlo
                 ) {
                     when (val s = screen) {
                         Screen.Home -> HomeScreen(
-                            onOpenYarns = { navigateTo(Screen.YarnList) },
-                            onOpenProjects = { navigateTo(Screen.ProjectList) },
-                            onOpenPatterns = { navigateTo(Screen.PatternList) },
+                            onOpenArticles = { navigateTo(Screen.ArticleList) },
+                            onOpenLocations = { navigateTo(Screen.LocationList) },
                             onOpenInfo = { navigateTo(Screen.Info) },
                             onOpenStatistics = { navigateTo(Screen.Statistics) },
                             onOpenSettings = { navigateTo(Screen.Settings) },
                             onOpenHowToHelp = { navigateTo(Screen.HowToHelp) }
                         )
 
-                        Screen.YarnList -> {
-                            val defaultYarnName = stringResource(Res.string.yarn_new_default_name)
-                            YarnListScreen(
-                                yarns = yarns.sortedByDescending { it.modified },
+                        Screen.ArticleList -> {
+                            val defaultArticleName = stringResource(Res.string.article_new_default_name)
+                            ArticleListScreen(
+                                articles = articles.sortedByDescending { it.modified },
+                                locations = locations,
                                 imageManager = imageManager,
-                                usages = usages,
+                                assignments = assignments,
                                 settings = settings,
                                 onAddClick = {
                                     scope.launch {
-                                        val newYarn = jsonDataManager.createNewYarn(defaultYarnName)
-                                        withContext(Dispatchers.Default) { jsonDataManager.addOrUpdateYarn(newYarn) }
+                                        val newArticle = jsonDataManager.createNewArticle(defaultArticleName)
+                                        withContext(Dispatchers.Default) { jsonDataManager.addOrUpdateArticle(newArticle) }
                                         reloadAllData()
-                                        navigateTo(Screen.YarnForm(newYarn.id))
+                                        navigateTo(Screen.ArticleForm(newArticle.id))
                                     }
                                 },
-                                onOpen = { id -> navigateTo(Screen.YarnForm(id)) },
+                                onOpen = { id -> navigateTo(Screen.ArticleForm(id)) },
                                 onBack = { navigateBack() },
                                 onSettingsChange = { newSettings ->
                                     scope.launch {
@@ -188,53 +181,54 @@ fun App(jsonDataManager: JsonDataManager, imageManager: ImageManager, fileDownlo
                             )
                         }
 
-                        is Screen.YarnForm -> {
-                            val existingYarn = remember(s.yarnId, yarns) {
+                        is Screen.ArticleForm -> {
+                            val existingArticle = remember(s.articleId, articles) {
                                 try {
-                                    jsonDataManager.getYarnById(s.yarnId)
+                                    jsonDataManager.getArticleById(s.articleId)
                                 } catch (e: NoSuchElementException) {
                                     scope.launch {
-                                        Logger.log(LogLevel.ERROR, "Failed to get yarn by id ${s.yarnId} in YarnForm: ${e.message}", e)
+                                        Logger.log(LogLevel.ERROR, "Failed to get article by id ${s.articleId} in ArticleForm: ${e.message}", e)
                                     }
                                     null
                                 }
                             }
-                            var yarnImagesMap by remember { mutableStateOf<Map<Int, ByteArray>>(emptyMap()) }
+                            var articleImagesMap by remember { mutableStateOf<Map<Int, ByteArray>>(emptyMap()) }
 
-                            LaunchedEffect(s.yarnId, existingYarn) {
+                            LaunchedEffect(s.articleId, existingArticle) {
                                 val imageMap = mutableMapOf<Int, ByteArray>()
-                                existingYarn?.imageIds?.forEach { imageId ->
+                                existingArticle?.imageIds?.forEach { imageId ->
                                     try {
                                         withContext(Dispatchers.Default) {
-                                            imageManager.getYarnImage(existingYarn.id, imageId)
-                                                ?. let{
+                                            imageManager.getArticleImage(existingArticle.id, imageId)
+                                                ?.let {
                                                     imageMap[imageId] = it
                                                 } ?: scope.launch {
-                                                Logger.log(LogLevel.WARN, "Image not found for yarn ${existingYarn.id}, imageId $imageId")
+                                                Logger.log(LogLevel.WARN, "Image not found for article ${existingArticle.id}, imageId $imageId")
                                             }
                                         }
                                     } catch (e: Exception) {
                                         scope.launch {
-                                            Logger.log(LogLevel.ERROR, "Failed to load image for yarn ${existingYarn.id}, imageId $imageId: ${e.message}", e)
+                                            Logger.log(LogLevel.ERROR, "Failed to load image for article ${existingArticle.id}, imageId $imageId: ${e.message}", e)
                                         }
                                     }
                                 }
-                                yarnImagesMap = imageMap
+                                articleImagesMap = imageMap
                             }
 
-                            if (existingYarn == null) {
-                                LaunchedEffect(s.yarnId) { navigateBack() }
+                            if (existingArticle == null) {
+                                LaunchedEffect(s.articleId) { navigateBack() }
                             } else {
-                                val relatedUsages = usages.filter { it.yarnId == existingYarn.id }
-                                YarnFormScreen(
-                                    initial = existingYarn,
-                                    initialImages = yarnImagesMap,
-                                    usagesForYarn = relatedUsages,
-                                    projectById = { pid ->
-                                        projects.firstOrNull { it.id == pid }.also {
+                                val relatedAssignments = assignments.filter { it.articleId == existingArticle.id }
+                                ArticleFormScreen(
+                                    initial = existingArticle,
+                                    initialImages = articleImagesMap,
+                                    assignmentsForArticle = relatedAssignments,
+                                    allLocations = locations,
+                                    locationById = { pid ->
+                                        locations.firstOrNull { it.id == pid }.also {
                                             if (it == null) {
                                                 scope.launch {
-                                                    Logger.log(LogLevel.WARN, "Project with id $pid not found, referenced by yarn ${existingYarn.id}")
+                                                    Logger.log(LogLevel.WARN, "Location with id $pid not found, referenced by article ${existingArticle.id}")
                                                 }
                                             }
                                         }
@@ -242,90 +236,91 @@ fun App(jsonDataManager: JsonDataManager, imageManager: ImageManager, fileDownlo
                                     imageManager = imageManager,
                                     settings = settings,
                                     onBack = { navigateBack() },
-                                    onDelete = { yarnIdToDelete ->
+                                    onDelete = { articleIdToDelete ->
                                         scope.launch {
                                             try {
                                                 withContext(Dispatchers.Default) {
-                                                    val yarnToDelete = jsonDataManager.getYarnById(yarnIdToDelete)
-                                                    yarnToDelete!!.imageIds.forEach { imageId ->
-                                                        imageManager.deleteYarnImage(yarnIdToDelete, imageId)
+                                                    val articleToDelete = jsonDataManager.getArticleById(articleIdToDelete)
+                                                    articleToDelete!!.imageIds.forEach { imageId ->
+                                                        imageManager.deleteArticleImage(articleIdToDelete, imageId)
                                                     }
-                                                    jsonDataManager.deleteYarn(yarnIdToDelete)
+                                                    jsonDataManager.deleteArticle(articleIdToDelete)
                                                 }
                                                 reloadAllData()
-                                                navStack = navStack.filterNot { it is Screen.YarnForm && it.yarnId == yarnIdToDelete }
+                                                navStack = navStack.filterNot { it is Screen.ArticleForm && it.articleId == articleIdToDelete }
                                             } catch (e: Exception) {
-                                                Logger.log(LogLevel.ERROR, "Failed to delete yarn with id $yarnIdToDelete: ${e.message}", e)
-                                                errorDialogMessage = "Failed to delete yarn: ${e.message}"
+                                                Logger.log(LogLevel.ERROR, "Failed to delete article with id $articleIdToDelete: ${e.message}", e)
+                                                errorDialogMessage = "Failed to delete article: ${e.message}"
                                             }
                                         }
                                     },
-                                    onSave = { editedYarn, newImages ->
+                                    onSave = { editedArticle, newImages ->
                                         scope.launch {
-                                            val existingImageIds = existingYarn.imageIds
-                                            val newImagesToUpload = newImages.filter { it.key !in existingYarn.imageIds }
+                                            val existingImageIds = existingArticle.imageIds
+                                            val newImagesToUpload = newImages.filter { it.key !in existingArticle.imageIds }
                                             val idsToDelete = existingImageIds.filter { it !in newImages.keys }
                                             Logger.log(LogLevel.DEBUG, "Upload images: $newImagesToUpload")
                                             Logger.log(LogLevel.DEBUG, "Removing old images with ids: $idsToDelete")
 
                                             withContext(Dispatchers.Default) {
                                                 idsToDelete.forEach { imageId ->
-                                                    imageManager.deleteYarnImage(editedYarn.id, imageId)
+                                                    imageManager.deleteArticleImage(editedArticle.id, imageId)
                                                 }
 
                                                 newImagesToUpload.entries.forEach { (imageId, imageData) ->
-                                                    imageManager.saveYarnImage(
-                                                        editedYarn.id,
+                                                    imageManager.saveArticleImage(
+                                                        editedArticle.id,
                                                         imageId,
                                                         imageData
                                                     )
                                                 }
 
-                                                jsonDataManager.addOrUpdateYarn(editedYarn)
+                                                jsonDataManager.addOrUpdateArticle(editedArticle)
                                             }
                                             reloadAllData()
                                         }
                                     },
-                                    onAddColor = { yarnToCopy ->
+                                    onAddColor = { articleToCopy ->
                                         scope.launch {
-                                            val newYarnWithNewId = jsonDataManager.createNewYarn(yarnToCopy.name)
-                                            val newYarn = newYarnWithNewId.copy(
-                                                brand = yarnToCopy.brand,
-                                                blend = yarnToCopy.blend,
-                                                meteragePerSkein = yarnToCopy.meteragePerSkein,
-                                                weightPerSkein = yarnToCopy.weightPerSkein
+                                            val newArticleWithNewId = jsonDataManager.createNewArticle(articleToCopy.name)
+                                            val newArticle = newArticleWithNewId.copy(
+                                                brand = articleToCopy.brand,
+                                                storageLocationId = articleToCopy.storageLocationId,
+                                                abbreviation = articleToCopy.abbreviation,
+                                                minimumAmount = articleToCopy.minimumAmount,
+                                                notes = articleToCopy.notes
                                             )
-                                            withContext(Dispatchers.Default) { jsonDataManager.addOrUpdateYarn(newYarn) }
+                                            withContext(Dispatchers.Default) { jsonDataManager.addOrUpdateArticle(newArticle) }
                                             reloadAllData()
-                                            navigateTo(Screen.YarnForm(newYarn.id))
+                                            navigateTo(Screen.ArticleForm(newArticle.id))
                                         }
                                     },
-                                    onNavigateToProject = { projectId -> navigateTo(Screen.ProjectForm(projectId)) }
+                                    onNavigateToLocation = { projectId -> navigateTo(Screen.LocationForm(projectId)) }
                                 )
                             }
                         }
 
-                        Screen.ProjectList -> {
-                            val defaultProjectName =
-                                stringResource(Res.string.project_new_default_name)
-                            ProjectListScreen(
-                                projects = projects.sortedByDescending { it.modified },
+                        Screen.LocationList -> {
+                            val defaultLocationName =
+                                stringResource(Res.string.location_new_default_name)
+                            LocationListScreen(
+                                locations = locations,
                                 imageManager = imageManager,
                                 settings = settings,
                                 onAddClick = {
                                     scope.launch {
-                                        val newProject =
-                                            jsonDataManager.createNewProject(defaultProjectName)
+                                        val newLocation =
+                                            jsonDataManager.createNewLocation(defaultLocationName)
                                         withContext(Dispatchers.Default) {
-                                            jsonDataManager.addOrUpdateProject(
-                                                newProject
+                                            jsonDataManager.addOrUpdateLocation(
+                                                newLocation
                                             )
                                         }
                                         reloadAllData()
-                                        navigateTo(Screen.ProjectForm(newProject.id))
+                                        navigateTo(Screen.LocationForm(newLocation.id))
                                     }
                                 },
-                                onOpen = { id -> navigateTo(Screen.ProjectForm(id)) },
+                                onOpen = { id -> navigateTo(Screen.LocationForm(id)) },
                                 onBack = { navigateBack() },
                                 onSettingsChange = { newSettings ->
                                     scope.launch {
@@ -334,88 +329,85 @@ fun App(jsonDataManager: JsonDataManager, imageManager: ImageManager, fileDownlo
                                         }
                                         settings = newSettings
                                     }
-                                },
-                                yarns = yarns,
-                                usages = usages
+                                }
                             )
                         }
 
-                        is Screen.ProjectForm -> {
-                            val existingProject = remember(s.projectId, projects) {
+                        is Screen.LocationForm -> {
+                            val existingLocation = remember(s.locationId, locations) {
                                 try {
-                                    jsonDataManager.getProjectById(s.projectId)
+                                    jsonDataManager.getLocationById(s.locationId)
                                 } catch (e: NoSuchElementException) {
                                     scope.launch {
-                                        Logger.log(LogLevel.ERROR, "Failed to get project by id ${s.projectId} in ProjectForm: ${e.message}", e)
+                                        Logger.log(LogLevel.ERROR, "Failed to get location by id ${s.locationId} in LocationForm: ${e.message}", e)
                                     }
                                     null
                                 }
                             }
-                            var projectImagesMap by remember { mutableStateOf<Map<Int, ByteArray>>(emptyMap()) }
+                            var locationImagesMap by remember { mutableStateOf<Map<Int, ByteArray>>(emptyMap()) }
 
-                            LaunchedEffect(s.projectId, existingProject) {
+                            LaunchedEffect(s.locationId, existingLocation) {
                                 val imageMap = mutableMapOf<Int, ByteArray>()
-                                existingProject?.imageIds?.forEach { imageId ->
+                                existingLocation?.imageIds?.forEach { imageId ->
                                     try {
                                         withContext(Dispatchers.Default) {
-                                            imageManager.getProjectImage(existingProject.id, imageId)
+                                            imageManager.getLocationImage(existingLocation.id, imageId)
                                                 ?. let{
                                                     imageMap[imageId] = it
                                                 } ?: scope.launch {
-                                                Logger.log(LogLevel.WARN, "Image not found for project ${existingProject.id}, imageId $imageId")
+                                                Logger.log(LogLevel.WARN, "Image not found for location ${existingLocation.id}, imageId $imageId")
                                             }
                                         }
                                     } catch (e: Exception) {
                                         scope.launch {
-                                            Logger.log(LogLevel.ERROR, "Failed to load image for project ${existingProject.id}, imageId $imageId: ${e.message}", e)
+                                            Logger.log(LogLevel.ERROR, "Failed to load image for location ${existingLocation.id}, imageId $imageId: ${e.message}", e)
                                         }
                                     }
                                 }
-                                projectImagesMap = imageMap
+                                locationImagesMap = imageMap
                             }
 
-                            if (existingProject == null) {
-                                LaunchedEffect(s.projectId) { navigateBack() }
+                            if (existingLocation == null) {
+                                LaunchedEffect(s.locationId) { navigateBack() }
                             } else {
-                                val usagesForCurrentProject =
-                                    usages.filter { it.projectId == existingProject.id }
-                                ProjectFormScreen(
-                                    initial = existingProject,
-                                    initialImages = projectImagesMap,
-                                    usagesForProject = usagesForCurrentProject,
-                                    yarnById = { yarnId ->
-                                        yarns.firstOrNull { it.id == yarnId }.also {
+                                val assignmentsForCurrentLocation =
+                                    assignments.filter { it.locationId == existingLocation.id }
+                                LocationFormScreen(
+                                    initial = existingLocation,
+                                    initialImages = locationImagesMap,
+                                    assignmentsForLocation = assignmentsForCurrentLocation,
+                                    articleById = { articleId ->
+                                        articles.firstOrNull { it.id == articleId }.also {
                                             if (it == null) {
                                                 scope.launch {
-                                                    Logger.log(LogLevel.WARN, "Yarn with id $yarnId not found, referenced by project ${existingProject.id}")
+                                                    Logger.log(LogLevel.WARN, "Article with id $articleId not found, referenced by location ${existingLocation.id}")
                                                 }
                                             }
                                         }
                                     },
-                                    patterns = patterns,
                                     imageManager = imageManager,
                                     onBack = { navigateBack() },
-                                    onDelete = { projectIdToDelete ->
+                                    onDelete = { locationIdToDelete ->
                                         scope.launch {
                                             try {
                                                 withContext(Dispatchers.Default) {
-                                                    val projectToDelete = jsonDataManager.getProjectById(projectIdToDelete)
-                                                    projectToDelete!!.imageIds.forEach { imageId ->
-                                                        imageManager.deleteProjectImage(projectIdToDelete, imageId)
+                                                    val locationToDelete = jsonDataManager.getLocationById(locationIdToDelete)
+                                                    locationToDelete!!.imageIds.forEach { imageId ->
+                                                        imageManager.deleteLocationImage(locationIdToDelete, imageId)
                                                     }
-                                                    jsonDataManager.deleteProject(projectIdToDelete)
+                                                    jsonDataManager.deleteLocation(locationIdToDelete)
                                                 }
                                                 reloadAllData()
-                                                navStack = navStack.filterNot { (it is Screen.ProjectForm && it.projectId == projectIdToDelete) || (it is Screen.ProjectAssignments && it.projectId == projectIdToDelete) }
+                                                navStack = navStack.filterNot { (it is Screen.LocationForm && it.locationId == locationIdToDelete) || (it is Screen.InventoryAssignments && it.locationId == locationIdToDelete) }
                                             } catch (e: Exception) {
-                                                Logger.log(LogLevel.ERROR, "Failed to delete project with id $projectIdToDelete: ${e.message}", e)
+                                                Logger.log(LogLevel.ERROR, "Failed to delete project with id $locationIdToDelete: ${e.message}", e)
                                                 errorDialogMessage = "Failed to delete project: ${e.message}"
                                             }
                                         }
                                     },
-                                    onSave = { editedProject, newImages ->
+                                    onSave = { editedLocation, newImages ->
                                         scope.launch {
-                                            val existingImageIds = existingProject.imageIds
+                                            val existingImageIds = existingLocation.imageIds
                                             val newImagesToUpload = newImages.filter { it.key !in existingImageIds }
                                             val idsToDelete = existingImageIds.filter { it !in newImages.keys }
                                             Logger.log(LogLevel.DEBUG, "Upload images: $newImagesToUpload")
@@ -423,64 +415,48 @@ fun App(jsonDataManager: JsonDataManager, imageManager: ImageManager, fileDownlo
 
                                             withContext(Dispatchers.Default) {
                                                 idsToDelete.forEach { imageId ->
-                                                    imageManager.deleteProjectImage(editedProject.id, imageId)
+                                                    imageManager.deleteLocationImage(editedLocation.id, imageId)
                                                 }
                                                 newImagesToUpload.entries.sortedBy { it.key }.forEach { (imageId, imageData) ->
-                                                    imageManager.saveProjectImage(
-                                                        editedProject.id,
+                                                    imageManager.saveLocationImage(
+                                                        editedLocation.id,
                                                         imageId,
                                                         imageData
                                                     )
                                                 }
 
-                                                jsonDataManager.addOrUpdateProject(editedProject)
+                                                jsonDataManager.addOrUpdateLocation(editedLocation)
                                             }
                                             reloadAllData()
                                         }
                                     },
                                     onNavigateToAssignments = {
-                                        navigateTo(Screen.ProjectAssignments(
-                                            existingProject.id,
-                                            existingProject.name
+                                        navigateTo(Screen.InventoryAssignments(
+                                            existingLocation.id,
+                                            existingLocation.name
                                         ))
                                     },
-                                    onNavigateToPattern = { patternId ->
-                                        navigateTo(Screen.PatternForm(patternId))
-                                    },
-                                    onNavigateToYarn = { yarnId ->
-                                        navigateTo(Screen.YarnForm(yarnId))
+                                    onNavigateToArticle = { articleId ->
+                                        navigateTo(Screen.ArticleForm(articleId))
                                     }
                                 )
                             }
                         }
 
-                        is Screen.ProjectAssignments -> {
-                            val initialAssignmentsForProject = usages
-                                .filter { it.projectId == s.projectId }
-                                .associate { it.yarnId to it.amount }
+                        is Screen.InventoryAssignments -> {
+                            val initialAssignmentsForLocation = assignments
+                                .filter { it.locationId == s.locationId }
+                                .associate { it.articleId to it.amount }
 
-                            ProjectAssignmentsScreen(
-                                projectName = s.projectName,
-                                allYarns = yarns,
-                                initialAssignments = initialAssignmentsForProject,
-                                getAvailableAmountForYarn = { yarnId ->
-                                    try {
-                                        jsonDataManager.availableForYarn(
-                                            yarnId,
-                                            forProjectId = s.projectId
-                                        )
-                                    } catch (e: NoSuchElementException) {
-                                        scope.launch {
-                                            Logger.log(LogLevel.ERROR, "Failed to get available amount for yarn $yarnId in ProjectAssignmentsScreen: ${e.message}", e)
-                                        }
-                                        0
-                                    }
-                                },
+                            LocationAssignmentsScreen(
+                                locationName = s.locationName,
+                                allArticles = articles,
+                                initialAssignments = initialAssignmentsForLocation,
                                 onSave = { updatedAssignments ->
                                     scope.launch {
                                         withContext(Dispatchers.Default) {
-                                            jsonDataManager.setProjectAssignments(
-                                                s.projectId,
+                                            jsonDataManager.setLocationInventory(
+                                                s.locationId,
                                                 updatedAssignments
                                             )
                                         }
@@ -489,102 +465,6 @@ fun App(jsonDataManager: JsonDataManager, imageManager: ImageManager, fileDownlo
                                 },
                                 onBack = { navigateBack() }
                             )
-                        }
-
-                        Screen.PatternList -> {
-                            PatternListScreen(
-                                patterns = patterns,
-                                pdfManager = pdfManager,
-                                onAddClick = {
-                                    scope.launch {
-                                        val newPattern = jsonDataManager.createNewPattern()
-                                        withContext(Dispatchers.Default) { jsonDataManager.addOrUpdatePattern(newPattern) }
-                                        reloadAllData()
-                                        navigateTo(Screen.PatternForm(newPattern.id))
-                                    }
-                                },
-                                onOpen = { id -> navigateTo(Screen.PatternForm(id)) },
-                                onBack = { navigateBack() }
-                            )
-                        }
-
-                        is Screen.PatternForm -> {
-                            val existingPattern = remember(s.patternId, patterns) {
-                                try {
-                                    jsonDataManager.getPatternById(s.patternId)
-                                } catch (e: NoSuchElementException) {
-                                    scope.launch {
-                                        Logger.log(LogLevel.ERROR, "Failed to get pattern by id ${s.patternId} in PatternForm: ${e.message}", e)
-                                    }
-                                    null
-                                }
-                            }
-
-                            var initialPdf by remember { mutableStateOf<ByteArray?>(null) }
-
-                            LaunchedEffect(s.patternId, existingPattern) {
-                                if (existingPattern != null) {
-                                    try {
-                                        withContext(Dispatchers.Default) {
-                                            pdfManager.getPatternPdf(existingPattern.id)
-                                                ?.let { initialPdf = it }
-                                                ?: scope.launch {
-                                                    Logger.log(LogLevel.WARN, "PDF not found for pattern ${existingPattern.id}")
-                                                }
-                                        }
-                                    } catch (e: Exception) {
-                                        scope.launch {
-                                            Logger.log(LogLevel.ERROR, "Failed to load PDF for pattern ${existingPattern.id}: ${e.message}", e)
-                                        }
-                                        initialPdf = null
-                                    }
-                                }
-                            }
-
-                            if (existingPattern == null) {
-                                LaunchedEffect(s.patternId) { navigateBack() }
-                            } else {
-                                PatternFormScreen(
-                                    initial = existingPattern,
-                                    initialPdf = initialPdf,
-                                    projects = projects,
-                                    patterns = patterns,
-                                    pdfManager = pdfManager,
-                                    imageManager = imageManager,
-                                    onBack = { navigateBack() },
-                                    onDelete = { patternIdToDelete ->
-                                        scope.launch {
-                                            projects.filter { it.patternId == patternIdToDelete }.forEach { projectToUpdate ->
-                                                val updatedProject = projectToUpdate.copy(patternId = null)
-                                                withContext(Dispatchers.Default) { jsonDataManager.addOrUpdateProject(updatedProject) }
-                                            }
-                                            withContext(Dispatchers.Default) {
-                                                pdfManager.deletePatternPdf(patternIdToDelete)
-                                                jsonDataManager.deletePattern(patternIdToDelete)
-                                            }
-                                            reloadAllData()
-                                            navStack = navStack.filterNot { it is Screen.PatternForm && it.patternId == patternIdToDelete }
-                                        }
-                                    },
-                                    onSave = { editedPattern, pdf ->
-                                        scope.launch {
-                                            withContext(Dispatchers.Default) {
-                                                if (initialPdf == null && pdf != null || initialPdf != null && pdf == null || (initialPdf != null && pdf != null && !initialPdf.contentEquals(pdf))) {
-                                                    if (pdf != null) {
-                                                        pdfManager.savePatternPdf(editedPattern.id, pdf)
-                                                    } else {
-                                                        pdfManager.deletePatternPdf(editedPattern.id)
-                                                    }
-                                                }
-                                                jsonDataManager.addOrUpdatePattern(editedPattern)
-                                            }
-                                            reloadAllData()
-                                        }
-                                    },
-                                    onViewPdfExternally = { pdfManager.openPatternPdfExternally(s.patternId) },
-                                    onNavigateToProject = { projectId -> navigateTo(Screen.ProjectForm(projectId)) }
-                                )
-                            }
                         }
 
                         Screen.Info -> {
@@ -597,9 +477,9 @@ fun App(jsonDataManager: JsonDataManager, imageManager: ImageManager, fileDownlo
 
                         Screen.Statistics -> {
                             StatisticsScreen(
-                                yarns = yarns,
-                                projects = projects,
-                                usages = usages,
+                                articles = articles,
+                                locations = locations,
+                                assignments = assignments,
                                 onBack = { navigateBack() },
                                 settings = settings
                             )
@@ -608,9 +488,9 @@ fun App(jsonDataManager: JsonDataManager, imageManager: ImageManager, fileDownlo
                         Screen.Settings -> {
                             SettingsScreen(
                                 currentLocale = settings.language,
-                                currentLengthUnit = settings.lengthUnit,
                                 currentLogLevel = settings.logLevel,
                                 backupOldFolderOnImport = settings.backupOldFolderOnImport,
+                                defaultExpirationDays = settings.defaultExpirationDays,
                                 fileHandler = fileHandler,
                                 onBack = { navigateBack() },
                                 onExportZip = {
@@ -669,15 +549,6 @@ fun App(jsonDataManager: JsonDataManager, imageManager: ImageManager, fileDownlo
                                         settings = newSettings
                                     }
                                 },
-                                onLengthUnitChange = { newLengthUnit ->
-                                    scope.launch {
-                                        val newSettings = settings.copy(lengthUnit = newLengthUnit)
-                                        withContext(Dispatchers.Default) {
-                                            settingsManager.saveSettings(newSettings)
-                                        }
-                                        settings = newSettings
-                                    }
-                                },
                                 onLogLevelChange = { newLogLevel ->
                                     scope.launch {
                                         val newSettings = settings.copy(logLevel = newLogLevel)
@@ -690,6 +561,15 @@ fun App(jsonDataManager: JsonDataManager, imageManager: ImageManager, fileDownlo
                                 onBackupOldFolderOnImportChange = { newBackupOldFolderOnImport ->
                                     scope.launch {
                                         val newSettings = settings.copy(backupOldFolderOnImport = newBackupOldFolderOnImport)
+                                        withContext(Dispatchers.Default) {
+                                            settingsManager.saveSettings(newSettings)
+                                        }
+                                        settings = newSettings
+                                    }
+                                },
+                                onDefaultExpirationDaysChange = { newDefaultExpirationDays ->
+                                    scope.launch {
+                                        val newSettings = settings.copy(defaultExpirationDays = newDefaultExpirationDays)
                                         withContext(Dispatchers.Default) {
                                             settingsManager.saveSettings(newSettings)
                                         }
