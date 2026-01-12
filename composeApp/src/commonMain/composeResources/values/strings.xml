@@ -13,7 +13,14 @@
     <string name="article_list_title">Article List</string>
     <string name="article_list_empty">No articles yet. Tap + to add a new one.</string>
     <string name="article_item_label_modified">Last modified: %1$s</string>
-    <string name="article_list_show_missing">Show missing only</string>
+    <string name="article_list_show_missing">Show deficiency</string>
+    <string name="article_list_show_expired">Show expired</string>
+    <string name="article_list_expiry_today">Today (0 days)</string>
+    <string name="article_list_expiry_1_week">1 week (7 days)</string>
+    <string name="article_list_expiry_2_weeks">2 weeks (14 days)</string>
+    <string name="article_list_expiry_3_weeks">3 weeks (21 days)</string>
+    <string name="article_list_expiry_4_weeks">4 weeks (28 days)</string>
+    <string name="article_item_label_expires">Expires: %1$s</string>
     <string name="article_list_filter">Search</string>
 
     <!-- Project list -->
@@ -53,6 +60,7 @@
     <string name="article_label_yardage_per_skein">yd / skein</string>
     <string name="article_label_number_of_skeins">Number of skeins</string>
     <string name="article_label_modified">Modified</string>
+    <string name="article_label_expiry_date">Expiry Date (YYYY-MM-DD)</string>
     <string name="date_format_hint_modified">Modified (YYYY, YYYY-MM, YYYY-MM-DD)</string>
     <string name="article_label_added">Added</string>
     <string name="date_format_hint_added">Added (YYYY, YYYY-MM, YYYY-MM-DD)</string>

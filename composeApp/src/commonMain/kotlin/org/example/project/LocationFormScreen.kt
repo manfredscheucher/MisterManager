@@ -284,7 +284,7 @@ fun LocationFormScreen(
                                 Spacer(Modifier.width(16.dp))
                                 Column {
                                     Text(article.name, style = MaterialTheme.typography.bodyLarge)
-                                    Text("${assignment.amount} g", style = MaterialTheme.typography.bodyMedium)
+                                    Text("${assignment.amount} units", style = MaterialTheme.typography.bodyMedium)
                                 }
                             }
                         }

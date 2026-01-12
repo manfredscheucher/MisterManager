@@ -41,6 +41,7 @@ fun ArticleFormScreen(
     var storageLocationId by remember { mutableStateOf(initial.storageLocationId) }
     var abbreviation by remember { mutableStateOf(initial.abbreviation ?: "") }
     var minimumAmount by remember { mutableStateOf(initial.minimumAmount.toString()) }
+    var expiryDate by remember { mutableStateOf(initial.expiryDate ?: "") }
     var notes by remember { mutableStateOf(initial.notes ?: "") }
     val modifiedState by remember { mutableStateOf(initial.modified ?: getCurrentTimestamp()) }
 
@@ -81,6 +82,7 @@ fun ArticleFormScreen(
                      storageLocationId != initial.storageLocationId ||
                      abbreviation != (initial.abbreviation ?: "") ||
                      minimumAmount != initial.minimumAmount.toString() ||
+                     expiryDate != (initial.expiryDate ?: "") ||
                      notes != (initial.notes ?: "") ||
                      images.keys.toSet() != initial.imageIds.toSet()
 
@@ -91,6 +93,7 @@ fun ArticleFormScreen(
             storageLocationId = storageLocationId,
             abbreviation = abbreviation.takeIf { it.isNotBlank() },
             minimumAmount = minimumAmount.toIntOrNull() ?: 0,
+            expiryDate = expiryDate.takeIf { it.isNotBlank() },
             notes = notes.takeIf { it.isNotBlank() },
             modified = modifiedState,
             imageIds = images.keys.toList()
@@ -292,6 +295,16 @@ fun ArticleFormScreen(
                     value = minimumAmount,
                     onValueChange = { minimumAmount = it.filter { c -> c.isDigit() } },
                     label = { Text("Minimum Amount") },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true
+                )
+            }
+
+            item {
+                OutlinedTextField(
+                    value = expiryDate,
+                    onValueChange = { expiryDate = it },
+                    label = { Text("Expiry Date (YYYY-MM-DD)") },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true
                 )

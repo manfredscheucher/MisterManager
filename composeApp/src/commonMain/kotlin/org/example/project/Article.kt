@@ -11,6 +11,7 @@ data class Article(
     val storageLocationId: Int? = null,
     val abbreviation: String? = null,
     val minimumAmount: Int = 0,
+    val expiryDate: String? = null,
     val notes: String? = null,
     val modified: String? = null,
     val added: String? = null,
