@@ -41,6 +41,8 @@ fun ArticleListScreen(
 
     var filter by remember { mutableStateOf("") }
     var showMissingOnly by remember { mutableStateOf(false) }
+    var showExpiringOnly by remember { mutableStateOf(false) }
+    var expiryThresholdDays by remember { mutableStateOf(7u) }
 
     Scaffold(
         topBar = {
@@ -100,6 +102,20 @@ fun ArticleListScreen(
                     }
                 }
 
+                // Calculate which articles have expiring assignments
+                val articlesWithExpiringAssignments = remember(assignments, expiryThresholdDays) {
+                    val today = getCurrentDateString()
+                    val thresholdDate = addDaysToDate(today, expiryThresholdDays)
+
+                    articles.filter { article ->
+                        assignments.any { assignment ->
+                            assignment.articleId == article.id &&
+                            assignment.expirationDate != null &&
+                            assignment.expirationDate!! <= thresholdDate
+                        }
+                    }.map { it.id }.toSet()
+                }
+
                 val filteredArticles = articles.filter { article ->
                     // Filter by search term
                     val matchesSearch = if (filter.isNotBlank()) {
@@ -116,7 +132,14 @@ fun ArticleListScreen(
                         true
                     }
 
-                    matchesSearch && matchesMissing
+                    // Filter by expiring assignments
+                    val matchesExpiring = if (showExpiringOnly) {
+                        articlesWithExpiringAssignments.contains(article.id)
+                    } else {
+                        true
+                    }
+
+                    matchesSearch && matchesMissing && matchesExpiring
                 }.sortedByDescending { it.modified ?: "" }
 
                 Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
@@ -134,6 +157,84 @@ fun ArticleListScreen(
                         )
                     }
 
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Checkbox(
+                            checked = showExpiringOnly,
+                            onCheckedChange = { showExpiringOnly = it }
+                        )
+                        Text(
+                            text = stringResource(Res.string.article_list_show_expired),
+                            modifier = Modifier.padding(start = 8.dp)
+                        )
+
+                        if (showExpiringOnly) {
+                            var expanded by remember { mutableStateOf(false) }
+                            Spacer(Modifier.width(16.dp))
+                            ExposedDropdownMenuBox(
+                                expanded = expanded,
+                                onExpandedChange = { expanded = it },
+                                modifier = Modifier.weight(1f)
+                            ) {
+                                OutlinedTextField(
+                                    value = when (expiryThresholdDays) {
+                                        0u -> stringResource(Res.string.article_list_expiry_today)
+                                        7u -> stringResource(Res.string.article_list_expiry_1_week)
+                                        14u -> stringResource(Res.string.article_list_expiry_2_weeks)
+                                        21u -> stringResource(Res.string.article_list_expiry_3_weeks)
+                                        28u -> stringResource(Res.string.article_list_expiry_4_weeks)
+                                        else -> "$expiryThresholdDays days"
+                                    },
+                                    onValueChange = {},
+                                    readOnly = true,
+                                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                                    modifier = Modifier.fillMaxWidth().menuAnchor()
+                                )
+                                ExposedDropdownMenu(
+                                    expanded = expanded,
+                                    onDismissRequest = { expanded = false }
+                                ) {
+                                    DropdownMenuItem(
+                                        text = { Text(stringResource(Res.string.article_list_expiry_today)) },
+                                        onClick = {
+                                            expiryThresholdDays = 0u
+                                            expanded = false
+                                        }
+                                    )
+                                    DropdownMenuItem(
+                                        text = { Text(stringResource(Res.string.article_list_expiry_1_week)) },
+                                        onClick = {
+                                            expiryThresholdDays = 7u
+                                            expanded = false
+                                        }
+                                    )
+                                    DropdownMenuItem(
+                                        text = { Text(stringResource(Res.string.article_list_expiry_2_weeks)) },
+                                        onClick = {
+                                            expiryThresholdDays = 14u
+                                            expanded = false
+                                        }
+                                    )
+                                    DropdownMenuItem(
+                                        text = { Text(stringResource(Res.string.article_list_expiry_3_weeks)) },
+                                        onClick = {
+                                            expiryThresholdDays = 21u
+                                            expanded = false
+                                        }
+                                    )
+                                    DropdownMenuItem(
+                                        text = { Text(stringResource(Res.string.article_list_expiry_4_weeks)) },
+                                        onClick = {
+                                            expiryThresholdDays = 28u
+                                            expanded = false
+                                        }
+                                    )
+                                }
+                            }
+                        }
+                    }
                 }
 
                 OutlinedTextField(
