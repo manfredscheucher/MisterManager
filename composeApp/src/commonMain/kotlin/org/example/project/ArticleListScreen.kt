@@ -92,13 +92,23 @@ fun ArticleListScreen(
                     Text(stringResource(Res.string.article_list_empty))
                 }
             } else {
-                // Calculate current amount for each article from assignments
+                // Calculate current amount and earliest expiration for each article
                 val articleCurrentAmounts = remember(assignments) {
                     articles.associate { article ->
                         val totalAssigned = assignments
                             .filter { it.articleId == article.id }
                             .sumOf { it.amount }
                         article.id to totalAssigned
+                    }
+                }
+
+                val articleEarliestExpiration = remember(assignments) {
+                    articles.associate { article ->
+                        val earliestExpiration = assignments
+                            .filter { it.articleId == article.id && it.expirationDate != null }
+                            .mapNotNull { it.expirationDate }
+                            .minOrNull()
+                        article.id to earliestExpiration
                     }
                 }
 
@@ -299,8 +309,19 @@ fun ArticleListScreen(
                                         Text(it, style = MaterialTheme.typography.bodyMedium)
                                     }
                                     val isMissing = currentAmount < article.minimumAmount
+                                    val earliestExpiration = articleEarliestExpiration[article.id]
+                                    val amountText = if (earliestExpiration != null) {
+                                        "Amount: $currentAmount (until $earliestExpiration)"
+                                    } else {
+                                        "Amount: $currentAmount"
+                                    }
+                                    val warningText = if (isMissing && article.minimumAmount > 0u) {
+                                        " ⚠️ (minimum amount: ${article.minimumAmount})"
+                                    } else {
+                                        ""
+                                    }
                                     Text(
-                                        "Amount: $currentAmount / ${article.minimumAmount}${if (isMissing && article.minimumAmount > 0u) " ⚠️" else ""}",
+                                        amountText + warningText,
                                         style = MaterialTheme.typography.bodySmall,
                                         color = if (isMissing && article.minimumAmount > 0u) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface
                                     )

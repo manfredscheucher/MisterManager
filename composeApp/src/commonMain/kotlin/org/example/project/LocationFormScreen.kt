@@ -276,7 +276,12 @@ fun LocationFormScreen(
                                 Spacer(Modifier.width(16.dp))
                                 Column {
                                     Text(article.name, style = MaterialTheme.typography.bodyLarge)
-                                    Text("${assignment.amount} units", style = MaterialTheme.typography.bodyMedium)
+                                    val amountText = if (assignment.expirationDate != null) {
+                                        "${assignment.amount} units (until ${assignment.expirationDate})"
+                                    } else {
+                                        "${assignment.amount} units"
+                                    }
+                                    Text(amountText, style = MaterialTheme.typography.bodyMedium)
                                 }
                             }
                         }
