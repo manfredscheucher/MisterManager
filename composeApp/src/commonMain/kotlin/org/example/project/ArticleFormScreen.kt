@@ -75,7 +75,7 @@ fun ArticleFormScreen(
         if (showRemoved) {
             assignmentsForArticle
         } else {
-            assignmentsForArticle.filter { it.removedDate == null }
+            assignmentsForArticle.filter { it.consumedDate == null }
         }
     }
 
@@ -340,7 +340,7 @@ fun ArticleFormScreen(
                             onCheckedChange = { showRemoved = it }
                         )
                         Text(
-                            text = "Show Removed",
+                            text = "Show Consumed",
                             modifier = Modifier.padding(start = 8.dp)
                         )
                     }
@@ -392,8 +392,10 @@ fun ArticleFormScreen(
                                 Spacer(Modifier.width(16.dp))
                                 Column {
                                     Text(location.name, style = MaterialTheme.typography.bodyLarge)
-                                    val amountText = if (assignment.expirationDate != null) {
-                                        "${assignment.amount} units (until ${assignment.expirationDate})"
+                                    val amountText = if (assignment.consumedDate != null) {
+                                        "${assignment.amount} units (consumed ${assignment.consumedDate})"
+                                    } else if (assignment.expirationDate != null) {
+                                        "${assignment.amount} units (expires ${assignment.expirationDate})"
                                     } else {
                                         "${assignment.amount} units"
                                     }

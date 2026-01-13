@@ -74,7 +74,7 @@ fun LocationListScreen(
     // Calculate total amount and earliest expiration for each location
     val locationStats = remember(locations, assignments) {
         locations.associate { location ->
-            val locationAssignments = assignments.filter { it.locationId == location.id && it.removedDate == null }
+            val locationAssignments = assignments.filter { it.locationId == location.id && it.consumedDate == null }
             val totalAmount = locationAssignments.sumOf { it.amount }
             val earliestExpiration = locationAssignments
                 .mapNotNull { it.expirationDate }
@@ -198,7 +198,7 @@ fun LocationListScreen(
                                             val isExpired = earliestExpiration != null && earliestExpiration < today
                                             val amountText = if (earliestExpiration != null) {
                                                 val warning = if (isExpired) " ⚠️" else ""
-                                                "$totalAmount units (until $earliestExpiration)$warning"
+                                                "$totalAmount units (expires $earliestExpiration)$warning"
                                             } else {
                                                 "$totalAmount units"
                                             }

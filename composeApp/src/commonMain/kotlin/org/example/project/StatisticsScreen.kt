@@ -18,7 +18,7 @@ import org.jetbrains.compose.resources.stringResource
 data class MonthlyStats(
     val month: String,
     val added: UInt,
-    val removed: UInt
+    val consumed: UInt
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -41,7 +41,7 @@ fun StatisticsScreen(
         val years = mutableSetOf<String>()
         assignments.forEach { assignment ->
             assignment.addedDate?.let { years.add(it.substring(0, 4)) }
-            assignment.removedDate?.let { years.add(it.substring(0, 4)) }
+            assignment.consumedDate?.let { years.add(it.substring(0, 4)) }
         }
         years.sorted().reversed()
     }
@@ -79,13 +79,13 @@ fun StatisticsScreen(
                 }
             }
 
-            // Count removed
-            assignment.removedDate?.let { date ->
+            // Count consumed
+            assignment.consumedDate?.let { date ->
                 val yearFilter = selectedYear
                 if (yearFilter == null || date.startsWith(yearFilter)) {
                     val key = if (yearFilter != null) date.substring(0, 7) else date.substring(0, 4)
                     val current = stats[key] ?: MonthlyStats(key, 0u, 0u)
-                    stats[key] = current.copy(removed = current.removed + assignment.amount)
+                    stats[key] = current.copy(consumed = current.consumed + assignment.amount)
                 }
             }
         }
@@ -254,14 +254,14 @@ fun StatisticsScreen(
                         Row(modifier = Modifier.fillMaxWidth()) {
                             Text("Period", modifier = Modifier.weight(1f), style = MaterialTheme.typography.labelMedium)
                             Text("Added", modifier = Modifier.weight(1f), style = MaterialTheme.typography.labelMedium)
-                            Text("Removed", modifier = Modifier.weight(1f), style = MaterialTheme.typography.labelMedium)
+                            Text("Consumed", modifier = Modifier.weight(1f), style = MaterialTheme.typography.labelMedium)
                         }
                         Divider(modifier = Modifier.padding(vertical = 8.dp))
                         monthlyStats.forEach { stat ->
                             Row(modifier = Modifier.fillMaxWidth()) {
                                 Text(stat.month, modifier = Modifier.weight(1f))
                                 Text(stat.added.toString(), modifier = Modifier.weight(1f))
-                                Text(stat.removed.toString(), modifier = Modifier.weight(1f))
+                                Text(stat.consumed.toString(), modifier = Modifier.weight(1f))
                             }
                             Spacer(Modifier.height(4.dp))
                         }

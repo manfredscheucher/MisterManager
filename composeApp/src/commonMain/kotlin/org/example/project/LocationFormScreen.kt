@@ -47,7 +47,7 @@ fun LocationFormScreen(
         if (showRemoved) {
             assignmentsForLocation
         } else {
-            assignmentsForLocation.filter { it.removedDate == null }
+            assignmentsForLocation.filter { it.consumedDate == null }
         }
     }
 
@@ -254,7 +254,7 @@ fun LocationFormScreen(
                             onCheckedChange = { showRemoved = it }
                         )
                         Text(
-                            text = "Show Removed",
+                            text = "Show Consumed",
                             modifier = Modifier.padding(start = 8.dp)
                         )
                     }
@@ -306,8 +306,10 @@ fun LocationFormScreen(
                                 Spacer(Modifier.width(16.dp))
                                 Column {
                                     Text(article.name, style = MaterialTheme.typography.bodyLarge)
-                                    val amountText = if (assignment.expirationDate != null) {
-                                        "${assignment.amount} units (until ${assignment.expirationDate})"
+                                    val amountText = if (assignment.consumedDate != null) {
+                                        "${assignment.amount} units (consumed ${assignment.consumedDate})"
+                                    } else if (assignment.expirationDate != null) {
+                                        "${assignment.amount} units (expires ${assignment.expirationDate})"
                                     } else {
                                         "${assignment.amount} units"
                                     }

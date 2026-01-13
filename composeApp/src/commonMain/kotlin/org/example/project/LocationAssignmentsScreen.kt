@@ -36,21 +36,21 @@ fun LocationAssignmentsScreen(
     var showDeleteDialog by remember { mutableStateOf(false) }
     var assignmentToDelete by remember { mutableStateOf<Int?>(null) }
 
-    // Store initial removedDate for each assignment to determine visibility
-    val initialRemovedDates = remember(initialAssignments) {
-        initialAssignments.associate { it.id to it.removedDate }
+    // Store initial consumedDate for each assignment to determine visibility
+    val initialConsumedDates = remember(initialAssignments) {
+        initialAssignments.associate { it.id to it.consumedDate }
     }
 
     val hasChanges by remember(currentAssignments) {
         derivedStateOf { currentAssignments != initialAssignments }
     }
 
-    // Group assignments by article, filtering based on initial removedDate
+    // Group assignments by article, filtering based on initial consumedDate
     val assignmentsByArticle = remember(currentAssignments, allArticles, showRemoved) {
         allArticles.associate { article ->
             article to currentAssignments.filter { assignment ->
                 assignment.articleId == article.id &&
-                (showRemoved || initialRemovedDates[assignment.id] == null)
+                (showRemoved || initialConsumedDates[assignment.id] == null)
             }.toMutableList()
         }
     }
@@ -167,7 +167,7 @@ fun LocationAssignmentsScreen(
                     state = state,
                     contentPadding = PaddingValues(16.dp)
                 ) {
-                    item(key = "show_removed_toggle") {
+                    item(key = "show_consumed_toggle") {
                         Row(
                             modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
                             verticalAlignment = Alignment.CenterVertically
@@ -177,7 +177,7 @@ fun LocationAssignmentsScreen(
                                 onCheckedChange = { showRemoved = it }
                             )
                             Text(
-                                text = "Show Removed",
+                                text = "Show Consumed",
                                 modifier = Modifier.padding(start = 8.dp)
                             )
                         }
@@ -209,15 +209,58 @@ fun LocationAssignmentsScreen(
                             if (assignmentIndex >= 0) {
                                 AssignmentRow(
                                     assignment = currentAssignments[assignmentIndex],
+                                    allAssignments = currentAssignments,
                                     onUpdate = { updated ->
                                         currentAssignments = currentAssignments.toMutableList().apply {
                                             this[assignmentIndex] = updated
                                         }
                                     },
-                                    onRemove = {
+                                    onConsume = {
                                         val today = getCurrentDateString()
                                         currentAssignments = currentAssignments.toMutableList().apply {
-                                            this[assignmentIndex] = this[assignmentIndex].copy(removedDate = today)
+                                            this[assignmentIndex] = this[assignmentIndex].copy(consumedDate = today)
+                                        }
+                                    },
+                                    onSplit = {
+                                        val assignment = currentAssignments[assignmentIndex]
+                                        val newAssignments = mutableListOf<Assignment>()
+                                        // Create individual assignments with amount=1
+                                        repeat(assignment.amount.toInt()) {
+                                            val existingIds = (currentAssignments + newAssignments).map { it.id }.toSet()
+                                            var newId: UInt
+                                            do {
+                                                newId = kotlin.random.Random.nextInt().toUInt()
+                                            } while (existingIds.contains(newId))
+
+                                            newAssignments.add(assignment.copy(
+                                                id = newId,
+                                                amount = 1u
+                                            ))
+                                        }
+                                        // Remove original and add split assignments
+                                        currentAssignments = currentAssignments.toMutableList().apply {
+                                            removeAt(assignmentIndex)
+                                            addAll(newAssignments)
+                                        }
+                                    },
+                                    onMerge = {
+                                        val assignment = currentAssignments[assignmentIndex]
+                                        // Find all assignments with same attributes
+                                        val toMerge = currentAssignments.filter { other ->
+                                            other.articleId == assignment.articleId &&
+                                            other.locationId == assignment.locationId &&
+                                            other.addedDate == assignment.addedDate &&
+                                            other.expirationDate == assignment.expirationDate &&
+                                            other.consumedDate == assignment.consumedDate
+                                        }
+                                        if (toMerge.size > 1) {
+                                            val totalAmount = toMerge.sumOf { it.amount }
+                                            val mergedAssignment = assignment.copy(amount = totalAmount)
+                                            // Remove all merged assignments and add single merged one
+                                            currentAssignments = currentAssignments.toMutableList().apply {
+                                                removeAll(toMerge)
+                                                add(mergedAssignment)
+                                            }
                                         }
                                     },
                                     onDelete = {
@@ -253,11 +296,25 @@ fun LocationAssignmentsScreen(
 @Composable
 private fun AssignmentRow(
     assignment: Assignment,
+    allAssignments: List<Assignment>,
     onUpdate: (Assignment) -> Unit,
-    onRemove: () -> Unit,
+    onConsume: () -> Unit,
+    onSplit: () -> Unit,
+    onMerge: () -> Unit,
     onDelete: () -> Unit
 ) {
     var showMenu by remember { mutableStateOf(false) }
+
+    // Check if merge is possible
+    val canMerge = remember(allAssignments, assignment) {
+        allAssignments.count { other ->
+            other.articleId == assignment.articleId &&
+            other.locationId == assignment.locationId &&
+            other.addedDate == assignment.addedDate &&
+            other.expirationDate == assignment.expirationDate &&
+            other.consumedDate == assignment.consumedDate
+        } > 1
+    }
 
     Card(
         modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
@@ -291,11 +348,29 @@ private fun AssignmentRow(
                         expanded = showMenu,
                         onDismissRequest = { showMenu = false }
                     ) {
+                        if (assignment.amount > 1u) {
+                            DropdownMenuItem(
+                                text = { Text("Split") },
+                                onClick = {
+                                    showMenu = false
+                                    onSplit()
+                                }
+                            )
+                        }
+                        if (canMerge) {
+                            DropdownMenuItem(
+                                text = { Text("Merge") },
+                                onClick = {
+                                    showMenu = false
+                                    onMerge()
+                                }
+                            )
+                        }
                         DropdownMenuItem(
-                            text = { Text("Remove") },
+                            text = { Text("Consume") },
                             onClick = {
                                 showMenu = false
-                                onRemove()
+                                onConsume()
                             }
                         )
                         DropdownMenuItem(
@@ -328,9 +403,9 @@ private fun AssignmentRow(
                 )
                 Spacer(Modifier.height(8.dp))
                 OutlinedTextField(
-                    value = assignment.removedDate ?: "",
-                    onValueChange = { onUpdate(assignment.copy(removedDate = it.takeIf { it.isNotBlank() })) },
-                    label = { Text("Removed Date (YYYY-MM-DD)") },
+                    value = assignment.consumedDate ?: "",
+                    onValueChange = { onUpdate(assignment.copy(consumedDate = it.takeIf { it.isNotBlank() })) },
+                    label = { Text("Consumed Date (YYYY-MM-DD)") },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
