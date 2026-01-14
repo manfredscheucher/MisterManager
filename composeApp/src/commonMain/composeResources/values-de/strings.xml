@@ -12,8 +12,8 @@
     <string name="article_list_title">Artikel</string>
     <string name="article_list_empty">Keine Artikel. Klicke + um eine neue hinzuzufügen.</string>
     <string name="article_item_label_modified">Zuletzt geändert: %1$s</string>
-    <string name="article_list_show_missing">Mangel anzeigen</string>
-    <string name="article_list_show_expired">Abgelaufene anzeigen</string>
+    <string name="article_list_show_missing">Nur Defizit</string>
+    <string name="article_list_show_expired">Nur Abgelaufenes</string>
     <string name="article_list_expiry_today">Heute (0 Tage)</string>
     <string name="article_list_expiry_1_week">1 Woche (7 Tage)</string>
     <string name="article_list_expiry_2_weeks">2 Wochen (14 Tage)</string>
