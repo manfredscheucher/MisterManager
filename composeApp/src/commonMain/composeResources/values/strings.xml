@@ -9,7 +9,7 @@
     <string name="home_button_statistics">Statistics</string>
 
     <!-- Article list -->
-    <string name="article_list_title">Article List</string>
+    <string name="article_list_title">Articles</string>
     <string name="article_list_empty">No articles yet. Tap + to add a new one.</string>
     <string name="article_item_label_modified">Last modified: %1$s</string>
     <string name="article_list_show_missing">Show deficiency</string>
