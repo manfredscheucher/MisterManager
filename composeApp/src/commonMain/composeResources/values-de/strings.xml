@@ -6,7 +6,6 @@
     <string name="home_title">OpenFridge</string>
     <string name="home_button_articles">Artikel</string>
     <string name="home_button_locations">Lagerorte</string>
-    <string name="home_button_patterns">Anleitungen</string>
     <string name="home_button_statistics">Statistik</string>
 
     <!-- Article list -->
@@ -24,16 +23,10 @@
     <string name="article_list_filter">Suche</string>
 
 
-    <!-- Project list -->
+    <!-- Location list -->
     <string name="location_list_title">Lagerorte</string>
-    <string name="project_list_empty">Kein Projekt. Klicke + um ein neues hinzuzufügen.</string>
     <string name="location_list_filter">Suche</string>
     <string name="item_label_name">Name: %1$s</string>
-
-    <!-- Pattern list -->
-    <string name="pattern_list_title">Anleitungen</string>
-    <string name="pattern_list_empty">Keine Anleitung. Klicke + um eine neue hinzuzufügen.</string>
-    <string name="pattern_list_filter">Suche</string>
 
     <!-- Common labels/actions -->
     <string name="common_back">Zurück</string>
@@ -52,16 +45,7 @@
     <string name="article_form_new">Neuer Artikel</string>
     <string name="article_form_edit">Artikel bearbeiten</string>
     <string name="article_label_name">Name</string>
-    <string name="article_label_color">Farbe</string>
-    <string name="article_label_color_code">Farbcode</string>
-    <string name="article_label_blend">Zusammensetzung</string>
-    <string name="article_label_dye_lot">Farbpartie</string>
     <string name="article_label_brand">Marke</string>
-    <string name="article_label_amount">Menge (g)</string>
-    <string name="article_label_weight_per_skein">g / Knäuel</string>
-    <string name="article_label_meterage_per_skein">m / Knäuel</string>
-    <string name="article_label_yardage_per_skein">yd / Knäuel</string>
-    <string name="article_label_number_of_skeins">Anzahl Knäuel</string>
     <string name="article_label_modified">Zuletzt geändert</string>
     <string name="article_label_expiry_date">Ablaufdatum (JJJJ-MM-TT)</string>
     <string name="date_format_hint_modified">Zuletzt geändert (JJJJ, JJJJ-MM, JJJJ-MM-TT)</string>
@@ -82,59 +66,19 @@
     <string name="location_form_new">Neuer Lagerort</string>
     <string name="location_form_edit">Lagerort bearbeiten</string>
     <string name="location_label_name">Name</string>
-    <string name="location_label_pattern">Anleitung</string>
-    <string name="location_label_for">Gemacht für</string>
-    <string name="location_label_start_date">Startdatum</string>
-    <string name="location_label_end_date">Enddatum</string>
-    <string name="date_format_hint_project">Datum (JJJJ, JJJJ-MM, JJJJ-MM-TT)</string>
     <string name="location_label_notes">Notizen</string>
     <string name="location_form_button_assignments">Zuweisungen verwalten</string>
-    <string name="location_form_button_export_pdf">PDF Export</string>
     <string name="delete_location_restricted_title">Löschen nicht möglich</string>
     <string name="delete_location_restricted_message">Löschen ist nur möglich, wenn keine Artikel zugeordnet sind. Entfernen Sie die zugewiesenen Artikel um fortzufahren.</string>
-    <string name="location_status_planning">In Planung</string>
-    <string name="location_status_in_progress">In Arbeit</string>
-    <string name="location_status_finished">Fertig</string>
     <string name="location_new_default_name">Lagerort#%1$d</string>
-    <string name="row_counter_new_default_name">Reihenzähler #%1$d</string>
-    <string name="location_label_needle_size">Nadelstärke</string>
-    <string name="location_label_size">Größe</string>
-    <string name="location_label_gauge">Maschenprobe</string>
-    <string name="location_label_row_count">Reihenzähler</string>
-    <string name="location_form_add_counter">Zähler hinzufügen</string>
     <string name="location_form_select_image">Bild auswählen</string>
     <string name="location_form_take_image">Foto aufnehmen</string>
     <string name="location_form_remove_image">Bild entfernen</string>
-    <string name="location_form_add_counter_dialog_title">Neuen Zähler hinzufügen</string>
-    <string name="location_form_add_counter_dialog_label">Zählername</string>
-    <string name="export_as_pdf">Als PDF exportieren</string>
-
-    <!-- Pattern form -->
-    <string name="pattern_form_new">Neue Anleitung</string>
-    <string name="pattern_form_edit">Anleitung bearbeiten</string>
-    <string name="pattern_label_name">Name</string>
-    <string name="pattern_label_creator">Designer</string>
-    <string name="pattern_label_category">Kategorie</string>
-    <string name="pattern_label_gauge">Maschenprobe</string>
-    <string name="pattern_form_select_pdf">PDF auswählen</string>
-    <string name="pattern_form_remove_pdf">PDF entfernen</string>
-    <string name="pattern_form_view_pdf">PDF ansehen</string>
-    <string name="pattern_form_view_pdf_externally">Extern ansehen</string>
-
-    <!-- Project Assignments -->
-    <string name="project_assignments_title">Woll-Zuweisungen für %1$s</string>
 
     <!-- Assignment -->
     <string name="assignment_section_title">Zugeordnete Artikel</string>
-    <string name="assignment_amount_label">Menge (g)</string>
-    <string name="assignment_available">Verfügbar: %1$d g</string>
-    <string name="assignment_available_with_meterage">Verfügbar: %1$d g (%2$d m)</string>
-    <string name="assignment_available_with_yardage">Verfügbar: %1$d g (%2$d yd)</string>
-    <string name="assignment_available_meterage">Verfügbar: %1$d m</string>
-    <string name="assignment_available_yardage">Verfügbar: %1$d yd</string>
-    <string name="assignment_used">Verbraucht: %1$d g</string>
-    <string name="assignment_used_with_meterage">Verbraucht: %1$d g (%2$d m)</string>
-    <string name="assignment_used_with_yardage">Verbraucht: %1$d g (%2$d yd)</string>
+    <string name="assignment_amount_label">Menge</string>
+    <string name="assignment_available">Verfügbar: %1$d</string>
     <string name="assignment_projects_title">Lagerorte</string>
     <string name="assignment_locations_title">Zuweisungen</string>
     <string name="assignment_articles_title">Zugeordnete Artikel</string>
@@ -194,9 +138,6 @@ Das Entfernen oder Ersetzen des Namens des ursprünglichen Autors, eine falsche 
     <string name="import_dialog_title">Warnung</string>
     <string name="import_dialog_message">Die aktuelle Konfiguration wird durch den Import überschrieben. Sind Sie sicher, dass Sie fortfahren möchten?</string>
     <string name="language_label">Sprache</string>
-    <string name="length_unit_label">Längeneinheit</string>
-    <string name="length_unit_meters">Meter</string>
-    <string name="length_unit_yards">Yards</string>
     <string name="log_level_label">Log-Level</string>
     <string name="log_level_description">Die Log-Datei wird lokal auf dem Gerät gespeichert und kann über den ZIP-Export eingesehen werden.</string>
     <string name="backup_old_folder_on_import">Alten Ordner bei Import sichern</string>

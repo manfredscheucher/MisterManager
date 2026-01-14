@@ -6,7 +6,7 @@ import org.jetbrains.skiko.wasm.onWasmReady
 fun main() {
     val platform = getPlatform()
     val fileHandler = platform.fileHandler
-    val jsonDataManager = JsonDataManager(fileHandler, "stash.json")
+    val jsonDataManager = JsonDataManager(fileHandler, "inventory.json")
     val imageManager = ImageManager(fileHandler)
     val settingsManager = JsonSettingsManager(fileHandler, "settings.json")
     val fileDownloader = FileDownloader()

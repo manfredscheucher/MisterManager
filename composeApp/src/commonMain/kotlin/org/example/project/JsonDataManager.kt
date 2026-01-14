@@ -7,7 +7,7 @@ import kotlin.random.Random
 /**
  * Repository for managing articles, locations, and their assignments from a JSON file.
  */
-class JsonDataManager(private val fileHandler: FileHandler, private val filePath: String = "stash.json") {
+class JsonDataManager(private val fileHandler: FileHandler, private val filePath: String = "inventory.json") {
 
     private var data: AppData = AppData()
 

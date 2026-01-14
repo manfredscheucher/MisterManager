@@ -16,7 +16,7 @@ object Logger {
     }
 
     private val logFilePath = "log.txt"
-    private val stashFilePath = "stash.json"
+    private val stashFilePath = "inventory.json"
     private val settingsFilePath = "settings.json"
     private val filesDirPath = "."
 

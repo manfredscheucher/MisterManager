@@ -1,27 +1,37 @@
 # OpenFridge
 
-**OpenFridge** is an open-source app for managing your yarn stash and knitting projects. 
-It provides a clear overview of your inventory and projects, along with helpful statistics like yarn usage and completed projects over time. 
-It gives you full control - all data is only stored locally on your device, and you can manually export and import to other devices.
+**OpenFridge** is an open-source inventory management system for tracking items across storage locations. It provides a clear overview of your articles, their locations, and expiration dates, along with helpful statistics like items added and consumed over time. All data is stored locally on your device, with manual export/import options.
 
-As an [open-source software](https://en.wikipedia.org/wiki/Open-source_software) project, you can explore the full source code, build it yourself, and you are welcome to contribute.
+As an [open-source software](https://en.wikipedia.org/wiki/Open-source_software) project released under the **MIT License**, you can explore the source code, build it yourself, and contribute. See the [LICENSE](LICENSE) file for details.
 
-OpenFridge is built with [Kotlin Multiplatform](https://en.wikipedia.org/wiki/Kotlin_(programming_language)#Multiplatform) and [Compose Multiplatform](https://www.jetbrains.com/compose-multiplatform/), 
-and targets Android, iOS, Web, and desktop (Windows/macOS/Linux) from a single codebase with minimal platform-specific overhead.
-However, since we are only two developers, for the initial phase we only focus on the Android app. 
-Other platforms may not yet be fully supported or could behave differently. 
-We appreciate your understanding and encourage you to report any issues - in case you experience one -  so we can address them.
+OpenFridge is based on our earlier app [OpenYarnStash](https://github.com/manfredscheucher/OpenYarnStash), which was designed for yarn and knitting/crochet projects.
 
+Built with [Kotlin Multiplatform](https://en.wikipedia.org/wiki/Kotlin_(programming_language)#Multiplatform) and [Compose Multiplatform](https://www.jetbrains.com/compose-multiplatform/), OpenFridge targets Android, iOS, Web, and desktop (Windows/macOS/Linux) from a single codebase.
+
+This project was developed as an experiment in AI-assisted coding ("vibe coding"), comparing different AI models. Parts of the code were generated with **Claude Code** (Anthropic) and **Gemini** (Google). UI icons were created using **ChatGPT** prompts.
+
+## Features
+
+- **Article Management**: Create articles with brand, barcodes, minimum amounts, and default expiration periods
+- **Storage Locations**: Organize articles across multiple locations with visual tracking
+- **Assignment Tracking**: Assign articles to locations with amounts, dates, and expiration dates
+- **Expiration Monitoring**: Track items expiring soon or already expired
+- **Barcode Scanner**: Quickly add or search articles using barcode scanning (Android)
+- **Statistics**: View monthly statistics showing added and consumed items over time
+- **Split & Merge**: Split assignments into individual units or merge identical assignments
+- **Image Support**: Add images to articles and locations for visual identification
+- **Multi-language**: Support for English and German
+- **Data Export/Import**: Export and import data as JSON or complete ZIP archives
 
 ## How you can help
 
-The project is in early development and any type of feedback is very welcome!
+The project is in early development and any feedback is very welcome! Since we are only two developers, we focus on **Android** and **JVM desktop (Windows, Linux, macOS)** platforms. Other platforms may not yet be fully supported. We encourage you to report any issues so we can address them.
+
 Also let us know if you like the app!
 
-* Leave a star for our [github repository](https://github.com/manfredscheucher/OpenFridge/) 
-* Use the [github issue tracker](https://github.com/manfredscheucher/OpenFridge/issues) for reporting bugs/feature requests and discussing open tickets,
-* Join [our discord server](https://discord.gg/g2DpAXUX) for discussions
-* Just write as an [email](mailto:openfridge@proton.me)
+* Leave a star on our [GitHub repository](https://github.com/manfredscheucher/OpenFridge/)
+* Use the [GitHub issue tracker](https://github.com/manfredscheucher/OpenFridge/issues) for bugs/features
+* Join [our Discord server](https://discord.gg/g2DpAXUX) for discussions
+* Write us an [email](mailto:manfred.scheucher@proton.me)
 
-Thank you very much! :)
-
+Thank you! :)

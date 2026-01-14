@@ -4,7 +4,7 @@ import androidx.compose.ui.window.ComposeUIViewController
 
 fun MainViewController() = ComposeUIViewController {
     val fileHandler = IosFileHandler()
-    val jsonDataManager = JsonDataManager(fileHandler, "stash.json")
+    val jsonDataManager = JsonDataManager(fileHandler, "inventory.json")
     val imageManager = ImageManager(fileHandler)
     val pdfManager = PdfManager(fileHandler)
     val settingsManager = JsonSettingsManager(fileHandler, "settings.json")

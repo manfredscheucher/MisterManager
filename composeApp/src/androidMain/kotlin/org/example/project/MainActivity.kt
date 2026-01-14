@@ -14,9 +14,12 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
+        // Initialize context for file downloads
+        setContext(this)
+
         val platform = getPlatform(this)
         val fileHandler = platform.fileHandler
-        val jsonDataManager = JsonDataManager(fileHandler, "stash.json")
+        val jsonDataManager = JsonDataManager(fileHandler, "inventory.json")
         val imageManager = ImageManager(fileHandler)
         val settingsManager = JsonSettingsManager(fileHandler, "settings.json")
         val fileDownloader = FileDownloader()

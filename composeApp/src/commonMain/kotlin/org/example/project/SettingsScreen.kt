@@ -50,9 +50,6 @@ import openfridge.composeapp.generated.resources.import_dialog_message
 import openfridge.composeapp.generated.resources.import_dialog_title
 import openfridge.composeapp.generated.resources.import_zip
 import openfridge.composeapp.generated.resources.language_label
-import openfridge.composeapp.generated.resources.length_unit_label
-import openfridge.composeapp.generated.resources.length_unit_meters
-import openfridge.composeapp.generated.resources.length_unit_yards
 import openfridge.composeapp.generated.resources.log_level_label
 import openfridge.composeapp.generated.resources.log_level_description
 import openfridge.composeapp.generated.resources.settings

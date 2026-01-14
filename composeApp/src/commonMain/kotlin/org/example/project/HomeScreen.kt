@@ -27,7 +27,6 @@ import openfridge.composeapp.generated.resources.articles
 import openfridge.composeapp.generated.resources.help
 import openfridge.composeapp.generated.resources.home_button_articles
 import openfridge.composeapp.generated.resources.home_button_locations
-import openfridge.composeapp.generated.resources.home_button_patterns
 import openfridge.composeapp.generated.resources.home_button_statistics
 import openfridge.composeapp.generated.resources.home_title
 import openfridge.composeapp.generated.resources.info
@@ -35,7 +34,6 @@ import openfridge.composeapp.generated.resources.info_how_to_help
 import openfridge.composeapp.generated.resources.info_screen_title
 import openfridge.composeapp.generated.resources.locations
 import openfridge.composeapp.generated.resources.logo
-import openfridge.composeapp.generated.resources.patterns
 import openfridge.composeapp.generated.resources.settings
 import openfridge.composeapp.generated.resources.settings_title
 import openfridge.composeapp.generated.resources.statistics

@@ -141,7 +141,7 @@ fun HowToHelpScreen(
                         }
                         Spacer(modifier = Modifier.height(8.dp))
                         Button(
-                            onClick = { uriHandler.openUri("mailto:openfridge@proton.me") },
+                            onClick = { uriHandler.openUri("mailto:manfred.scheucher@proton.me") },
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             Text(stringResource(Res.string.email_button))
