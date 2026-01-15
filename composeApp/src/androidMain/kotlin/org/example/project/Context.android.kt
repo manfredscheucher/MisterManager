@@ -2,7 +2,7 @@ package org.example.project
 
 import android.content.Context
 
-private lateinit var applicationContext: Context
+private var applicationContext: Context? = null
 
 fun setContext(context: Context) {
     applicationContext = context

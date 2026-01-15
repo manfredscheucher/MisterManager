@@ -8,4 +8,7 @@ class AndroidPlatform(private val context: Context) : Platform {
     override val fileHandler: FileHandler = AndroidFileHandler(context)
 }
 
-actual fun getPlatform(context: Any?): Platform = AndroidPlatform(context as Context)
+actual fun getPlatform(context: Any?): Platform {
+    val actualContext = context ?: getContext()
+    return AndroidPlatform(actualContext as Context)
+}
