@@ -1,11 +1,16 @@
 package org.example.project
 
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.Matrix
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.*
 import androidx.core.content.FileProvider
+import androidx.exifinterface.media.ExifInterface
+import java.io.ByteArrayOutputStream
 import java.io.File
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -21,7 +26,12 @@ actual fun rememberCameraLauncher(onResult: (ByteArray?) -> Unit): CameraLaunche
             tempUri?.let { uri ->
                 try {
                     val bytes = context.contentResolver.openInputStream(uri)?.use { it.readBytes() }
-                    onResult(bytes)
+                    if (bytes != null) {
+                        val rotatedBytes = rotateImageIfRequired(context, bytes, uri)
+                        onResult(rotatedBytes)
+                    } else {
+                        onResult(null)
+                    }
                 } catch (e: Exception) {
                     GlobalScope.launch {
                         Logger.log(LogLevel.ERROR, "Failed to read camera image: ${e.message}")
@@ -37,6 +47,29 @@ actual fun rememberCameraLauncher(onResult: (ByteArray?) -> Unit): CameraLaunche
     return remember {
         CameraLauncher(launcher, context) { tempUri = it }
     }
+}
+
+private fun rotateImageIfRequired(context: Context, bytes: ByteArray, uri: Uri): ByteArray {
+    val inputStream = context.contentResolver.openInputStream(uri) ?: return bytes
+    val exif = ExifInterface(inputStream)
+    val orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)
+    
+    val rotation = when (orientation) {
+        ExifInterface.ORIENTATION_ROTATE_90 -> 90
+        ExifInterface.ORIENTATION_ROTATE_180 -> 180
+        ExifInterface.ORIENTATION_ROTATE_270 -> 270
+        else -> 0
+    }
+    
+    if (rotation == 0) return bytes
+    
+    val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+    val matrix = Matrix().apply { postRotate(rotation.toFloat()) }
+    val rotatedBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
+    
+    val outputStream = ByteArrayOutputStream()
+    rotatedBitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
+    return outputStream.toByteArray()
 }
 
 actual class CameraLauncher(
