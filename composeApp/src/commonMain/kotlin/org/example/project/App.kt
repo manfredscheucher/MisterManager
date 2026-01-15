@@ -280,7 +280,6 @@ fun App(jsonDataManager: JsonDataManager, imageManager: ImageManager, fileDownlo
                                                 jsonDataManager.addOrUpdateArticle(editedArticle)
                                             }
                                             reloadAllData()
-                                            navigateBack()
                                         }
                                     },
                                     onAddColor = { articleToCopy ->
@@ -439,7 +438,6 @@ fun App(jsonDataManager: JsonDataManager, imageManager: ImageManager, fileDownlo
                                                 jsonDataManager.addOrUpdateLocation(editedLocation)
                                             }
                                             reloadAllData()
-                                            navigateBack()
                                         }
                                     },
                                     onNavigateToAssignments = {
