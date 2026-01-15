@@ -196,7 +196,7 @@ fun ArticleFormScreen(
                     Button(onClick = { imagePicker.launch() }) {
                         Text(stringResource(Res.string.common_select_image))
                     }
-                    if (cameraLauncher != null && getPlatform().name == "Android") {
+                    if (cameraLauncher != null && getPlatform().name.startsWith("Android")) {
                         Button(onClick = { cameraLauncher.launch() }) {
                             Text(stringResource(Res.string.location_form_take_image))
                         }
@@ -305,7 +305,7 @@ fun ArticleFormScreen(
                         modifier = Modifier.weight(1f)
                     )
 
-                    if (barcodeScannerLauncher != null && getPlatform().name == "Android") {
+                    if (barcodeScannerLauncher != null && getPlatform().name.startsWith("Android")) {
                         Button(
                             onClick = { barcodeScannerLauncher.launch() },
                             modifier = Modifier.height(56.dp)

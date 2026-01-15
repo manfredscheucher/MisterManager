@@ -172,7 +172,7 @@ fun LocationFormScreen(
                     Button(onClick = { imagePicker.launch() }) {
                         Text(stringResource(Res.string.location_form_select_image))
                     }
-                    if (cameraLauncher != null && getPlatform().name == "Android") {
+                    if (cameraLauncher != null && getPlatform().name.startsWith("Android")) {
                         Button(onClick = { cameraLauncher.launch() }) {
                             Text(stringResource(Res.string.location_form_take_image))
                         }
