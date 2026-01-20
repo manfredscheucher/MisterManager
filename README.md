@@ -6,7 +6,7 @@ As an [open-source software](https://en.wikipedia.org/wiki/Open-source_software)
 
 MisterManager is based on our earlier app [OpenYarnStash](https://github.com/manfredscheucher/OpenYarnStash), which was designed for yarn and knitting/crochet projects.
 
-<img src="misc/start_android.png" alt="start screen android" width="33%"/><img src="misc/start_ios.png" alt="start screen ios" width="33%"/><img src="misc/start_jvm.png" alt="start screen jvm" width="33%"/>
+<img src="misc/start_android.png" alt="start screen android" width="37%"/><img src="misc/start_ios.png" alt="start screen ios" width="24%"/><img src="misc/start_jvm.png" alt="start screen jvm" width="37%"/>
 
 ## Features
 
