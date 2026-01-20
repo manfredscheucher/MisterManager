@@ -6,9 +6,7 @@ As an [open-source software](https://en.wikipedia.org/wiki/Open-source_software)
 
 MisterManager is based on our earlier app [OpenYarnStash](https://github.com/manfredscheucher/OpenYarnStash), which was designed for yarn and knitting/crochet projects.
 
-Built with [Kotlin Multiplatform](https://en.wikipedia.org/wiki/Kotlin_(programming_language)#Multiplatform) and [Compose Multiplatform](https://www.jetbrains.com/compose-multiplatform/), OpenFridge targets Android, iOS, Web, and desktop (Windows/macOS/Linux) from a single codebase.
-
-This project was developed as an experiment in AI-assisted coding ("vibe coding"), comparing different AI models. Parts of the code were generated with **Claude Code** (Anthropic) and **Gemini** (Google). UI icons were created using **ChatGPT** prompts.
+<img src="misc/start_android.png" alt="start screen android" width="33%"/><img src="misc/start_ios.png" alt="start screen ios" width="33%"/><img src="misc/start_jvm.png" alt="start screen jvm" width="33%"/>
 
 ## Features
 
@@ -22,6 +20,13 @@ This project was developed as an experiment in AI-assisted coding ("vibe coding"
 - **Image Support**: Add images to articles and locations for visual identification
 - **Multi-language**: Support for English and German
 - **Data Export/Import**: Export and import data as JSON or complete ZIP archives
+
+## Development
+
+Built with [Kotlin Multiplatform](https://en.wikipedia.org/wiki/Kotlin_(programming_language)#Multiplatform) and [Compose Multiplatform](https://www.jetbrains.com/compose-multiplatform/), OpenFridge targets Android, iOS, Web, and desktop (Windows/macOS/Linux) from a single codebase.
+
+This project was developed as an experiment in AI-assisted coding ("vibe coding"), comparing different AI models. Parts of the code were generated with **Claude Code** (Anthropic) and **Gemini** (Google). UI icons were created using **ChatGPT** prompts.
+
 
 ## How you can help
 
