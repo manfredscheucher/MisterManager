@@ -31,24 +31,6 @@ val generateVersionInfo = tasks.register("generateVersionInfo", GenerateVersionI
 
 kotlin {
     androidTarget()
-    /*
-    androidTarget {
-        compilerOptions {
-            jvmTarget.set(JvmTarget.JVM_11)
-        }
-    }
-    
-    listOf(
-        iosArm64(),
-        iosSimulatorArm64()
-    ).forEach { iosTarget ->
-        iosTarget.binaries.framework {
-            baseName = "OpenFridge"
-            isStatic = true
-        }
-    }
-    */
-    
 
     jvm()
 
