@@ -11,5 +11,6 @@ data class Assignment(
     val amount: UInt,
     val addedDate: String? = null,
     val expirationDate: String? = null,
-    val consumedDate: String? = null
+    val consumedDate: String? = null,
+    val lastModified: String? = null
 )

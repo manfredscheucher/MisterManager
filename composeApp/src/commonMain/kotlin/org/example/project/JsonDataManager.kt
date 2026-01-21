@@ -1,5 +1,7 @@
 package org.example.project
 
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import kotlin.random.Random
@@ -21,6 +23,7 @@ class JsonDataManager(private val fileHandler: FileHandler, private val filePath
             try {
                 val appData = Json.decodeFromString<AppData>(content)
                 validateData(appData)
+                Logger.log(LogLevel.INFO, "Loaded data: ${appData.articles.size} articles, ${appData.locations.size} locations, ${appData.assignments.size} assignments")
                 appData
             } catch (e: SerializationException) {
                 Logger.log(LogLevel.ERROR, "Failed to decode JSON data in fun load: ${e.message}", e)
@@ -32,6 +35,7 @@ class JsonDataManager(private val fileHandler: FileHandler, private val filePath
                 throw e
             }
         } else {
+            Logger.log(LogLevel.INFO, "No existing data file found, initialized empty AppData")
             AppData()
         }
         return data
@@ -57,7 +61,13 @@ class JsonDataManager(private val fileHandler: FileHandler, private val filePath
      * @return The name of the backup file, or null if backup failed.
      */
     suspend fun backup(): String? {
-        return fileHandler.backupFile(filePath)
+        return fileHandler.backupFile(filePath).also { backupName ->
+            if (backupName != null) {
+                Logger.log(LogLevel.INFO, "Created backup: $backupName")
+            } else {
+                Logger.log(LogLevel.WARN, "Backup failed")
+            }
+        }
     }
 
 
@@ -69,15 +79,18 @@ class JsonDataManager(private val fileHandler: FileHandler, private val filePath
         // First, validate the new content. This will throw if content is corrupt.
         val newData = Json.decodeFromString<AppData>(content)
         validateData(newData)
+        Logger.log(LogLevel.INFO, "Import validation successful: ${newData.articles.size} articles, ${newData.locations.size} locations, ${newData.assignments.size} assignments")
 
         // If validation is successful, then backup the existing file.
-        fileHandler.backupFile(filePath)
+        val backupName = fileHandler.backupFile(filePath)
+        Logger.log(LogLevel.INFO, "Created backup before import: $backupName")
 
         // Then, write the new content to the main file.
         fileHandler.writeText(filePath, content)
 
         // Finally, update the in-memory data.
         data = newData
+        Logger.log(LogLevel.INFO, "Import completed successfully")
     }
 
     private fun validateData(appData: AppData) {
@@ -120,22 +133,31 @@ class JsonDataManager(private val fileHandler: FileHandler, private val filePath
             id = newId,
             name = articleName,
             modified = getCurrentTimestamp()
-        )
+        ).also {
+            GlobalScope.launch {
+                Logger.log(LogLevel.INFO, "Created new article: id=${it.id}, name=${it.name}")
+            }
+        }
     }
 
     suspend fun addOrUpdateArticle(article: Article) {
         val index = data.articles.indexOfFirst { it.id == article.id }
         if (index != -1) {
+            Logger.log(LogLevel.INFO, "Updated article: id=${article.id}, name=${article.name}")
             data.articles[index] = article
         } else {
+            Logger.log(LogLevel.INFO, "Added article: id=${article.id}, name=${article.name}")
             data.articles.add(article)
         }
         save()
     }
 
     suspend fun deleteArticle(id: UInt) {
+        val article = getArticleById(id)
+        val assignmentsCount = data.assignments.count { it.articleId == id }
         data.articles.removeAll { it.id == id }
         data.assignments.removeAll { it.articleId == id }
+        Logger.log(LogLevel.INFO, "Deleted article: id=$id, name=${article?.name}, removed $assignmentsCount assignments")
         save()
     }
 
@@ -152,22 +174,31 @@ class JsonDataManager(private val fileHandler: FileHandler, private val filePath
         return Location(
             id = newId,
             name = locationName
-        )
+        ).also {
+            GlobalScope.launch {
+                Logger.log(LogLevel.INFO, "Created new location: id=${it.id}, name=${it.name}")
+            }
+        }
     }
 
     suspend fun addOrUpdateLocation(location: Location) {
         val index = data.locations.indexOfFirst { it.id == location.id }
         if (index != -1) {
+            Logger.log(LogLevel.INFO, "Updated location: id=${location.id}, name=${location.name}")
             data.locations[index] = location
         } else {
+            Logger.log(LogLevel.INFO, "Added location: id=${location.id}, name=${location.name}")
             data.locations.add(location)
         }
         save()
     }
 
     suspend fun deleteLocation(id: UInt) {
+        val location = getLocationById(id)
+        val assignmentsCount = data.assignments.count { it.locationId == id }
         data.locations.removeAll { it.id == id }
         data.assignments.removeAll { it.locationId == id }
+        Logger.log(LogLevel.INFO, "Deleted location: id=$id, name=${location?.name}, removed $assignmentsCount assignments")
         save()
     }
 
@@ -191,33 +222,52 @@ class JsonDataManager(private val fileHandler: FileHandler, private val filePath
             locationId = locationId,
             amount = 1u,
             addedDate = today,
-            expirationDate = expirationDate
-        )
+            expirationDate = expirationDate,
+            lastModified = getCurrentTimestamp()
+        ).also {
+            GlobalScope.launch {
+                Logger.log(LogLevel.INFO, "Created new assignment: id=${it.id}, articleId=$articleId, locationId=$locationId")
+            }
+        }
     }
 
     suspend fun setLocationAssignments(locationId: UInt, assignments: List<Assignment>) {
         // Remove existing assignments for this location
+        val removedCount = data.assignments.count { it.locationId == locationId }
         data.assignments.removeAll { it.locationId == locationId }
+        Logger.log(LogLevel.INFO, "Removed $removedCount existing assignments for locationId=$locationId")
 
-        // Add new assignments
+        // Add new assignments with updated lastModified timestamp
+        val timestamp = getCurrentTimestamp()
+        var addedCount = 0
         for (assignment in assignments) {
             if (assignment.amount > 0u) {
-                data.assignments.add(assignment)
+                data.assignments.add(assignment.copy(lastModified = timestamp))
+                Logger.log(LogLevel.INFO, "Updated assignment: id=${assignment.id}, articleId=${assignment.articleId}, locationId=$locationId, amount=${assignment.amount}")
+                addedCount++
             }
         }
+        Logger.log(LogLevel.INFO, "Added $addedCount assignments for locationId=$locationId")
         save()
     }
 
     suspend fun setArticleAssignments(articleId: UInt, assignments: List<Assignment>) {
         // Remove existing assignments for this article
+        val removedCount = data.assignments.count { it.articleId == articleId }
         data.assignments.removeAll { it.articleId == articleId }
+        Logger.log(LogLevel.INFO, "Removed $removedCount existing assignments for articleId=$articleId")
 
-        // Add new assignments
+        // Add new assignments with updated lastModified timestamp
+        val timestamp = getCurrentTimestamp()
+        var addedCount = 0
         for (assignment in assignments) {
             if (assignment.amount > 0u) {
-                data.assignments.add(assignment)
+                data.assignments.add(assignment.copy(lastModified = timestamp))
+                Logger.log(LogLevel.INFO, "Updated assignment: id=${assignment.id}, articleId=$articleId, locationId=${assignment.locationId}, amount=${assignment.amount}")
+                addedCount++
             }
         }
+        Logger.log(LogLevel.INFO, "Added $addedCount assignments for articleId=$articleId")
         save()
     }
 }
