@@ -1,3 +1,7 @@
+
+<img src="composeApp/src/commonMain/composeResources/drawable/logo.png" alt="icon" width="50%"/>
+
+
 # MisterManager
 
 **MisterManager** is an open-source inventory management system for tracking items across storage locations. It provides a clear overview of your articles, their locations, and expiration dates, along with helpful statistics like items added and consumed over time. All data is stored locally on your device, with manual export/import options.
