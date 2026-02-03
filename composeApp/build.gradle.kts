@@ -50,6 +50,13 @@ kotlin {
             baseName = "ComposeApp"
             isStatic = true
         }
+        iosTarget.compilations.getByName("main") {
+            cinterops {
+                val minizip by creating {
+                    defFile(project.file("src/nativeInterop/cinterop/minizip.def"))
+                }
+            }
+        }
     }
 
     sourceSets {
@@ -72,6 +79,12 @@ kotlin {
             }
         }
 
+        val commonTest by getting {
+            dependencies {
+                implementation(kotlin("test"))
+            }
+        }
+
         val androidMain by getting {
             dependencies {
                 implementation(compose.preview)
@@ -87,6 +100,12 @@ kotlin {
         }
         val iosArm64Main by getting { dependsOn(iosMain) }
         val iosSimulatorArm64Main by getting { dependsOn(iosMain) }
+
+        val iosTest by creating {
+            dependsOn(commonTest)
+        }
+        val iosArm64Test by getting { dependsOn(iosTest) }
+        val iosSimulatorArm64Test by getting { dependsOn(iosTest) }
 
         val jvmMain by getting {
             dependencies {

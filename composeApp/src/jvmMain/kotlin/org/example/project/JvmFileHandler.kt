@@ -13,14 +13,16 @@ import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
 
-class JvmFileHandler : FileHandler {
+class JvmFileHandler(testBaseDir: File? = null) : FileHandler {
 
     private var baseDir: File
     private val filesDir: File
 
     init {
-        val home = System.getProperty("user.home")
-        baseDir = File(home, ".mistermanager")
+        baseDir = testBaseDir ?: run {
+            val home = System.getProperty("user.home")
+            File(home, ".openyarnstash")
+        }
         filesDir = File(baseDir, "files")
         if (!filesDir.exists()) {
             filesDir.mkdirs()
@@ -125,13 +127,37 @@ class JvmFileHandler : FileHandler {
     override suspend fun renameFilesDirectory(newName: String) {
         val newDir = File(baseDir, newName)
         if (filesDir.renameTo(newDir)) {
-            // No need to update baseDir, as it's the parent of filesDir
+            Logger.log(LogLevel.INFO, "Renamed files directory to: $newName")
+        } else {
+            Logger.log(LogLevel.ERROR, "Failed to rename files directory to: $newName")
+        }
+    }
+
+    override suspend fun restoreBackupDirectory(backupName: String) {
+        val backupDir = File(baseDir, backupName)
+        if (backupDir.exists() && backupDir.renameTo(filesDir)) {
+            Logger.log(LogLevel.INFO, "Restored backup directory from: $backupName")
+        } else {
+            Logger.log(LogLevel.ERROR, "Failed to restore backup directory from: $backupName (exists: ${backupDir.exists()})")
         }
     }
 
     override suspend fun deleteFilesDirectory() {
         if (filesDir.exists()) {
             filesDir.deleteRecursively()
+            Logger.log(LogLevel.INFO, "Deleted files directory")
+        } else {
+            Logger.log(LogLevel.DEBUG, "Files directory does not exist, nothing to delete")
+        }
+    }
+
+    override suspend fun deleteBackupDirectory(backupName: String) {
+        val backupDir = File(baseDir, backupName)
+        if (backupDir.exists()) {
+            backupDir.deleteRecursively()
+            Logger.log(LogLevel.INFO, "Deleted backup directory: $backupName")
+        } else {
+            Logger.log(LogLevel.DEBUG, "Backup directory does not exist: $backupName")
         }
     }
 

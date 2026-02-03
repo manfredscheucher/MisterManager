@@ -156,7 +156,6 @@ Das Entfernen oder Ersetzen des Namens des ursprünglichen Autors, eine falsche 
     <string name="language_label">Sprache</string>
     <string name="log_level_label">Log-Level</string>
     <string name="log_level_description">Die Log-Datei wird lokal auf dem Gerät gespeichert und kann über den ZIP-Export eingesehen werden.</string>
-    <string name="backup_old_folder_on_import">Alten Ordner bei Import sichern</string>
 
     <!-- Not Implemented Dialog -->
     <string name="not_implemented_title">Nicht implementiert</string>

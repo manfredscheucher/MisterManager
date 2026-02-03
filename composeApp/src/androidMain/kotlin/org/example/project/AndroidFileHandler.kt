@@ -132,9 +132,28 @@ class AndroidFileHandler(private val context: Context) : FileHandler {
         filesDir.renameTo(newDir)
     }
 
+    override suspend fun restoreBackupDirectory(backupName: String) {
+        val backupDir = File(filesDir.parentFile, backupName)
+        if (backupDir.exists() && backupDir.renameTo(filesDir)) {
+            Logger.log(LogLevel.INFO, "Restored backup directory from: $backupName")
+        } else {
+            Logger.log(LogLevel.ERROR, "Failed to restore backup directory from: $backupName (exists: ${backupDir.exists()})")
+        }
+    }
+
     override suspend fun deleteFilesDirectory() {
         if (filesDir.exists()) {
             filesDir.deleteRecursively()
+        }
+    }
+
+    override suspend fun deleteBackupDirectory(backupName: String) {
+        val backupDir = File(filesDir.parentFile, backupName)
+        if (backupDir.exists()) {
+            backupDir.deleteRecursively()
+            Logger.log(LogLevel.INFO, "Deleted backup directory: $backupName")
+        } else {
+            Logger.log(LogLevel.DEBUG, "Backup directory does not exist: $backupName")
         }
     }
 

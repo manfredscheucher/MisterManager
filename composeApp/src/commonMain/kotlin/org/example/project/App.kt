@@ -144,7 +144,7 @@ fun App(jsonDataManager: JsonDataManager, imageManager: ImageManager, fileDownlo
             snackbarHost = { SnackbarHost(snackbarHostState) },
             contentWindowInsets = ScaffoldDefaults.contentWindowInsets
         ) { innerPadding ->
-            key(settings.language, settings.logLevel, settings.backupOldFolderOnImport) {
+            key(settings.language, settings.logLevel) {
                 Box(
                     modifier = Modifier
                         .padding(innerPadding)
@@ -532,7 +532,6 @@ fun App(jsonDataManager: JsonDataManager, imageManager: ImageManager, fileDownlo
                             SettingsScreen(
                                 currentLocale = settings.language,
                                 currentLogLevel = settings.logLevel,
-                                backupOldFolderOnImport = settings.backupOldFolderOnImport,
                                 enableExpirationDates = settings.enableExpirationDates,
                                 fileHandler = fileHandler,
                                 onBack = { navigateBack() },
@@ -582,15 +581,28 @@ fun App(jsonDataManager: JsonDataManager, imageManager: ImageManager, fileDownlo
                                     scope.launch {
                                         try {
                                             isImporting = true
-                                            if (settings.backupOldFolderOnImport) {
-                                                val timestamp = getCurrentTimestamp()
-                                                fileHandler.renameFilesDirectory("files_$timestamp") // backup for debugging in case of error
-                                            } else {
-                                                fileHandler.deleteFilesDirectory()
+
+                                            // Temporary backup
+                                            val backupFolderName = "backup"
+                                            // Delete old temporary backup if exists
+                                            try {
+                                                fileHandler.deleteBackupDirectory(backupFolderName)
+                                            } catch (e: Exception) {
+                                                // No old backup to delete
                                             }
+                                            fileHandler.renameFilesDirectory(backupFolderName)
+
                                             withContext(Dispatchers.Default) {
                                                 fileHandler.unzipAndReplaceFiles(zipInputStream)
                                             }
+
+                                            // Delete temporary backup on success
+                                            try {
+                                                fileHandler.deleteBackupDirectory(backupFolderName)
+                                            } catch (e: Exception) {
+                                                // Ignore
+                                            }
+
                                             reloadAllData()
                                             isImporting = false
                                             showImportSuccessDialog = true
@@ -617,15 +629,6 @@ fun App(jsonDataManager: JsonDataManager, imageManager: ImageManager, fileDownlo
                                 onLogLevelChange = { newLogLevel ->
                                     scope.launch {
                                         val newSettings = settings.copy(logLevel = newLogLevel)
-                                        withContext(Dispatchers.Default) {
-                                            settingsManager.saveSettings(newSettings)
-                                        }
-                                        settings = newSettings
-                                    }
-                                },
-                                onBackupOldFolderOnImportChange = { newBackupOldFolderOnImport ->
-                                    scope.launch {
-                                        val newSettings = settings.copy(backupOldFolderOnImport = newBackupOldFolderOnImport)
                                         withContext(Dispatchers.Default) {
                                             settingsManager.saveSettings(newSettings)
                                         }

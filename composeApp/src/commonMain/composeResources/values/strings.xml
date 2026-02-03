@@ -154,7 +154,6 @@ Removing or replacing the original author\'s name, misrepresenting authorship, o
     <string name="language_label">Language</string>
     <string name="log_level_label">Log Level</string>
     <string name="log_level_description">The log file is stored locally on the device and can be viewed via the ZIP export.</string>
-    <string name="backup_old_folder_on_import">Backup old folder on import</string>
 
     <!-- Not Implemented Dialog -->
     <string name="not_implemented_title">Not Implemented</string>
