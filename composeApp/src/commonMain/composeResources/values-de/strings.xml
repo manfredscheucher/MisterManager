@@ -121,6 +121,15 @@
 Nutzung, Änderung und Weiterverbreitung sind gestattet, sofern die ursprünglichen Urheberrechts- und Lizenzhinweise erhalten bleiben.
 Das Entfernen oder Ersetzen des Namens des ursprünglichen Autors, eine falsche Darstellung der Urheberschaft oder die Veröffentlichung modifizierter Versionen ohne Namensnennung ist nicht gestattet.</string>
     <string name="you_can_help_button">Du kannst helfen!</string>
+    <string name="info_third_party_licenses_title">Lizenzen von Drittanbietern</string>
+    <string name="info_third_party_licenses_description">Diese App verwendet Open-Source-Komponenten:</string>
+    <string name="info_license_apache2_libraries">• AndroidX, Jetpack Compose, Kotlin, Kotlinx-Bibliotheken, Google ML Kit, Apache PDFBox, Material Design, Kotest (Apache 2.0)</string>
+    <string name="info_license_mit_libraries">• Koalaplot (MIT)</string>
+    <string name="info_license_zlib_libraries">• Minizip (zlib)</string>
+    <string name="info_license_view_details">Tippe, um vollständige Lizenztexte anzuzeigen:</string>
+    <string name="info_license_apache2_button">Apache License 2.0</string>
+    <string name="info_license_mit_button">MIT-Lizenz</string>
+    <string name="info_license_zlib_button">zlib-Lizenz</string>
 
     <!-- Help Screen -->
     <string name="help_screen_title">Wie du helfen kannst</string>
@@ -148,6 +157,7 @@ Das Entfernen oder Ersetzen des Namens des ursprünglichen Autors, eine falsche 
     <string name="settings_title">Einstellungen</string>
     <string name="export_json">JSON exportieren</string>
     <string name="export_zip">ZIP exportieren</string>
+    <string name="data_export_warning">Hinweis: Diese App befindet sich derzeit in früher Entwicklung. Wir empfehlen, wertvolle Daten von Zeit zu Zeit über die ZIP-Export-Funktion zu exportieren, um Datenverlust durch versehentliche Importe oder Bugs zu vermeiden. Beim Import werden alle aktuellen Daten überschrieben.</string>
     <string name="import_json">JSON importieren</string>
     <string name="import_zip">ZIP importieren</string>
     <string name="import_button_text">Importieren</string>
@@ -165,6 +175,11 @@ Das Entfernen oder Ersetzen des Namens des ursprünglichen Autors, eine falsche 
     <string name="date_input_year">Jahr</string>
     <string name="date_input_month">Monat</string>
     <string name="date_input_day">Tag</string>
+    <string name="date_input_year_placeholder">JJJJ</string>
+    <string name="date_input_month_placeholder">MM</string>
+    <string name="date_input_day_placeholder">TT</string>
+    <string name="date_input_today">Heute</string>
+    <string name="date_input_clear">Löschen</string>
     
     <!-- Months -->
     <string name="month_january">Januar</string>

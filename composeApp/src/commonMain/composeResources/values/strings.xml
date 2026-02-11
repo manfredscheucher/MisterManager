@@ -120,6 +120,15 @@
 Usage, modification, and redistribution are permitted, provided the original copyright and license notices are preserved.
 Removing or replacing the original author\'s name, misrepresenting authorship, or publishing modified versions without attribution is not permitted.</string>
     <string name="you_can_help_button">You can help!</string>
+    <string name="info_third_party_licenses_title">Third-Party Licenses</string>
+    <string name="info_third_party_licenses_description">This app uses open-source components:</string>
+    <string name="info_license_apache2_libraries">• AndroidX, Jetpack Compose, Kotlin, Kotlinx libraries, Google ML Kit, Apache PDFBox, Material Design, Kotest (Apache 2.0)</string>
+    <string name="info_license_mit_libraries">• Koalaplot (MIT)</string>
+    <string name="info_license_zlib_libraries">• Minizip (zlib)</string>
+    <string name="info_license_view_details">Tap to view full license texts:</string>
+    <string name="info_license_apache2_button">Apache License 2.0</string>
+    <string name="info_license_mit_button">MIT License</string>
+    <string name="info_license_zlib_button">zlib License</string>
 
     <!-- Help Screen -->
     <string name="help_screen_title">How you can help</string>
@@ -146,6 +155,7 @@ Removing or replacing the original author\'s name, misrepresenting authorship, o
     <string name="settings_title">Settings</string>
     <string name="export_json">Export JSON</string>
     <string name="export_zip">Export ZIP</string>
+    <string name="data_export_warning">Note: This app is currently in early development. We recommend exporting your valuable data from time to time via the ZIP export function to avoid data loss from accidental imports or bugs. Importing will overwrite all current data.</string>
     <string name="import_json">Import JSON</string>
     <string name="import_zip">Import ZIP</string>
     <string name="import_button_text">Import</string>
@@ -163,6 +173,11 @@ Removing or replacing the original author\'s name, misrepresenting authorship, o
     <string name="date_input_year">Year</string>
     <string name="date_input_month">Month</string>
     <string name="date_input_day">Day</string>
+    <string name="date_input_year_placeholder">YYYY</string>
+    <string name="date_input_month_placeholder">MM</string>
+    <string name="date_input_day_placeholder">DD</string>
+    <string name="date_input_today">Today</string>
+    <string name="date_input_clear">Clear</string>
 
     <!-- Months -->
     <string name="month_january">January</string>

@@ -21,7 +21,7 @@ class JvmFileHandler(testBaseDir: File? = null) : FileHandler {
     init {
         baseDir = testBaseDir ?: run {
             val home = System.getProperty("user.home")
-            File(home, ".openyarnstash")
+            File(home, ".mistermanager")
         }
         filesDir = File(baseDir, "files")
         if (!filesDir.exists()) {

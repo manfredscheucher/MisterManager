@@ -5,7 +5,7 @@ import java.io.File
 
 actual fun createPlatformFileHandler(): FileHandler {
     // Create a temporary directory for testing
-    val tempDir = File.createTempFile("openyarnstash_test", "").apply {
+    val tempDir = File.createTempFile("mistermanager_test", "").apply {
         delete()
         mkdirs()
     }

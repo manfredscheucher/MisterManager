@@ -50,6 +50,7 @@ import mistermanager.composeapp.generated.resources.Res
 import mistermanager.composeapp.generated.resources.common_cancel
 import mistermanager.composeapp.generated.resources.common_ok
 import mistermanager.composeapp.generated.resources.common_yes
+import mistermanager.composeapp.generated.resources.data_export_warning
 import mistermanager.composeapp.generated.resources.export_zip
 import mistermanager.composeapp.generated.resources.import_dialog_message
 import mistermanager.composeapp.generated.resources.import_dialog_title
@@ -233,11 +234,7 @@ fun SettingsScreen(
                 )
 
                 Text(
-                    text = if (currentLocale == "de") {
-                        "Hinweis: Diese App befindet sich derzeit in früher Entwicklung. Wir empfehlen, wertvolle Daten von Zeit zu Zeit über die ZIP-Export-Funktion zu exportieren, um Datenverlust durch versehentliche Importe oder Bugs zu vermeiden. Beim Import werden alle aktuellen Daten überschrieben."
-                    } else {
-                        "Note: This app is currently in early development. We recommend exporting your valuable data from time to time via the ZIP export function to avoid data loss from accidental imports or bugs. Importing will overwrite all current data."
-                    },
+                    text = stringResource(Res.string.data_export_warning),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center,
