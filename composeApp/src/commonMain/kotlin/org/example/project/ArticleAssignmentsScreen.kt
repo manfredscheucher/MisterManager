@@ -15,7 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kotlinx.serialization.json.Json
-import org.example.project.components.IntegerInput
+import components.IntegerInput
 import org.jetbrains.compose.resources.stringResource
 import mistermanager.composeapp.generated.resources.*
 
@@ -353,11 +353,15 @@ private fun AssignmentRow(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                IntegerInput(
-                    value = assignment.amount,
-                    onValueChange = { newAmount -> onUpdate(assignment.copy(amount = newAmount)) },
-                    label = stringResource(Res.string.assignment_amount_label),
+                Text(
+                    text = stringResource(Res.string.assignment_amount_label),
+                    style = MaterialTheme.typography.bodyLarge,
                     modifier = Modifier.weight(1f)
+                )
+                IntegerInput(
+                    value = assignment.amount.toInt(),
+                    onValueChange = { newAmount -> onUpdate(assignment.copy(amount = newAmount.toUInt())) },
+                    min = 0
                 )
                 Spacer(Modifier.width(8.dp))
                 Box {

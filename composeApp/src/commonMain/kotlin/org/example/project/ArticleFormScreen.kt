@@ -16,7 +16,7 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import mistermanager.composeapp.generated.resources.*
-import org.example.project.components.IntegerInput
+import components.IntegerInput
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 
@@ -278,20 +278,42 @@ fun ArticleFormScreen(
             }
 
             item {
-                IntegerInput(
-                    value = minimumAmount.toUIntOrNull() ?: 0u,
-                    onValueChange = { minimumAmount = it.toString() },
-                    label = stringResource(Res.string.article_minimum_amount)
-                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = stringResource(Res.string.article_minimum_amount),
+                        style = MaterialTheme.typography.bodyLarge,
+                        modifier = Modifier.weight(1f)
+                    )
+                    IntegerInput(
+                        value = minimumAmount.toIntOrNull() ?: 0,
+                        onValueChange = { minimumAmount = it.toString() },
+                        min = 0
+                    )
+                }
             }
 
             if (settings.enableExpirationDates) {
                 item {
-                    IntegerInput(
-                        value = defaultExpirationDays.toUIntOrNull() ?: 0u,
-                        onValueChange = { defaultExpirationDays = it.toString() },
-                        label = stringResource(Res.string.article_default_expiration_days)
-                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = stringResource(Res.string.article_default_expiration_days),
+                            style = MaterialTheme.typography.bodyLarge,
+                            modifier = Modifier.weight(1f)
+                        )
+                        IntegerInput(
+                            value = defaultExpirationDays.toIntOrNull() ?: 0,
+                            onValueChange = { defaultExpirationDays = it.toString() },
+                            min = 0
+                        )
+                    }
                 }
             }
 
