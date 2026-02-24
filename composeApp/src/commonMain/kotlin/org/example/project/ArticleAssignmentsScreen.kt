@@ -15,7 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kotlinx.serialization.json.Json
-import components.IntegerInput
+import org.example.project.components.IntegerInput
 import org.jetbrains.compose.resources.stringResource
 import mistermanager.composeapp.generated.resources.*
 

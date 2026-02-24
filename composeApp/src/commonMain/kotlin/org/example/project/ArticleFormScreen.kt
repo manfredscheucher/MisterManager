@@ -16,7 +16,7 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import mistermanager.composeapp.generated.resources.*
-import components.IntegerInput
+import org.example.project.components.IntegerInput
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 
