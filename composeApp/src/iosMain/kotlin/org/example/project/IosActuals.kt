@@ -61,13 +61,3 @@ actual fun ByteArray.toImageBitmap(): ImageBitmap {
     canvas.drawImage(skiaImage, 0f, 0f)
     return skiaBitmap.asComposeImageBitmap()
 }
-
-@Composable
-actual fun FilePicker(show: Boolean, onFileSelected: (String?) -> Unit) {
-    // TODO
-}
-
-@Composable
-actual fun FilePickerForZip(show: Boolean, onFileSelected: (Any?) -> Unit) {
-    // TODO
-}
