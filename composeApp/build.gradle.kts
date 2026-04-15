@@ -151,6 +151,7 @@ abstract class GenerateVersionInfo @Inject constructor(
     abstract val gitDir: DirectoryProperty
     @get:Input abstract val versionName: Property<String>
     @get:Input abstract val packageName: Property<String>
+    @get:Input abstract val expirationDays: Property<Int>
     @get:OutputDirectory abstract val outputDir: DirectoryProperty
 
     @TaskAction
@@ -158,6 +159,7 @@ abstract class GenerateVersionInfo @Inject constructor(
         val version = versionName.get()
         var sha = "unknown"
         var isDirty = "unknown"
+        var commitDate = "unknown"
         val wd = gitDir.asFile.orNull?.parentFile ?: project.rootDir
 
         if (gitDir.asFile.orNull?.exists() == true) {
@@ -171,6 +173,16 @@ abstract class GenerateVersionInfo @Inject constructor(
                     isIgnoreExitValue = false
                 }
                 sha = shaOutput.toString().trim()
+
+                // Get commit date (ISO 8601 UTC)
+                val commitDateOutput = ByteArrayOutputStream()
+                execOps.exec {
+                    workingDir = wd
+                    commandLine("git", "log", "-1", "--format=%cI", "--date=iso-strict")
+                    standardOutput = commitDateOutput
+                    isIgnoreExitValue = false
+                }
+                commitDate = commitDateOutput.toString().trim()
 
                 // Check if repo is dirty (only tracked files)
                 val statusOutput = ByteArrayOutputStream()
@@ -186,11 +198,12 @@ abstract class GenerateVersionInfo @Inject constructor(
             }
         }
 
-        // Zeitstempel wie in DateUtils.kt (ISO 8601 UTC)
+        // Compile timestamp ISO 8601 UTC
         val df = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'")
         df.timeZone = TimeZone.getTimeZone("UTC")
-        val timestamp = df.format(Date())
+        val buildDate = df.format(Date())
 
+        val expDays = expirationDays.get()
         val dir = outputDir.get().asFile.apply { mkdirs() }
         dir.resolve("GeneratedVersionInfo.kt").writeText(
             """
@@ -205,15 +218,19 @@ abstract class GenerateVersionInfo @Inject constructor(
              *   gradle.properties -> version=X.Y.Z
              *
              * Other values are generated from Git:
-             *   GIT_SHA: Current Git commit hash
+             *   COMMIT_SHA: Current Git commit hash
+             *   COMMIT_DATE: Date of the last Git commit (ISO 8601)
              *   IS_DIRTY: Whether working directory has uncommitted changes
-             *   BUILD_DATE: When this build was created (ISO 8601 UTC)
+             *   BUILD_DATE: When this build was compiled (ISO 8601 UTC)
+             *   EXPIRATION_DAYS: Days until app expires (0 = no expiration)
              */
             object GeneratedVersionInfo {
                 const val VERSION: String = "$version"
-                const val GIT_SHA: String = "$sha"
+                const val COMMIT_SHA: String = "$sha"
+                const val COMMIT_DATE: String = "$commitDate"
                 const val IS_DIRTY: String = "$isDirty"
-                const val BUILD_DATE: String = "$timestamp"
+                const val BUILD_DATE: String = "$buildDate"
+                const val EXPIRATION_DAYS: Int = $expDays
             }
             """.trimIndent()
         )
@@ -227,6 +244,7 @@ generateVersionInfo.configure {
     versionName.set(project.provider { project.version.toString() })
     packageName.set("org.example.project")
     outputDir.set(versionGenOut)
+    expirationDays.set(project.provider { (project.findProperty("expirationDays") as? String)?.toIntOrNull() ?: 365 })
 }
 
 tasks.withType(KotlinCompilationTask::class.java).configureEach {

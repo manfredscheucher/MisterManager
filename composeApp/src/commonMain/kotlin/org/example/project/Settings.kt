@@ -13,9 +13,18 @@ enum class LogLevel {
 }
 
 @Serializable
+data class VersionInfo(
+    val appVersion: String = "",
+    val commitHash: String = "",
+    val commitDate: String = "",
+    val lastUsedDate: String = ""
+)
+
+@Serializable
 data class Settings(
     val language: String = "en",
     val statisticTimespan: String = "year",
     val logLevel: LogLevel = LogLevel.ERROR,
-    val enableExpirationDates: Boolean = true
+    val enableExpirationDates: Boolean = true,
+    val versionInfo: VersionInfo = VersionInfo()
 )
